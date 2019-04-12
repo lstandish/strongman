@@ -72,8 +72,8 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 						}
 					}
 				}
+// file_put_contents ( "$datapath/mytest.txt","changed: ".print_r($cat,true) . "\n",FILE_APPEND);
 				file_put_contents("$datapath/$hashPass", $new_content);
-//			file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","retval: ".print_r($retval,true) . "\n",FILE_APPEND);
 			}
 		} else $retval += 2; // can't save, no existing entry
 	}

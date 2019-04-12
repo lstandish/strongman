@@ -54,7 +54,8 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	$start_date = $curtime;
 	$aes_expire = -1; // $start_date + $trial_secs; // -1 is for permanent free account
 	$account = array(
-		'dates' => "$start_date,$aes_expire" // 21 days free aes password storage.
+		'dates' => "$start_date,$aes_expire", // 21 days free aes password storage.
+		'custcats' => "Uncategorized,Banking,E-commerce,Services,Social Media,Tools/Admin,Forums,Government,Unused,Unused"
 	);
 	$config_data = array();
 	if (!$check) {

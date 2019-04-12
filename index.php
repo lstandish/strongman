@@ -213,7 +213,7 @@ $(function(){
 		var cursettings = 0;
 		if (document.getElementById("prefixon").checked) cursettings += 2;
 		if (document.getElementById("manualcopy").checked) cursettings += 1;
-		for (var i=0; i<gcats.length; i++) {
+		for (var i=0; i<gcatsw.length; i++) {
 			var el = document.getElementById('cc' + i);
 			if (el !== null) {
 //				if (el.value.indexOf(',') > -1) {
@@ -260,7 +260,7 @@ $(function(){
 		if (!confirm("Are you sure to want to delete the Strongman account associated with the provided master password? If a matching account is found, if will be irrevocably removed, and all passwords it contains lost.")) {
 			return;
 		}
-		var sPub = genhash(delaccountmp + "T=|JkDp[)97oS-",1);
+		var sPub = genhash(delaccountmp,1);
 		if (sPub == hPub) {
 			if (!confirm("WARNING: The password provided is for your currently open account. Are you sure you want to remove this account?")) {
 				return;
@@ -486,7 +486,7 @@ $(function(){
 		$(this).toggleClass("fa-eye-slash");
 	});
 	<?=(isset($_COOKIE["matchoff"])) ? "initmatch(0);" : "initmatch(1);";?>
-
+	resetcats();
 	if (getCookie("offline")) {
 		$("#entry").autocomplete("disable");
 		$("#entry").autocomplete("matchon");
@@ -627,7 +627,8 @@ function ajaxsave(cipher,checkexisting,incr) {
 			return;
 		}
 	}
-	opts += ',' + notes + ',' + document.getElementById("categ").value;
+	var catval = document.getElementById("categ").value;
+	opts += ',' + notes + ',' + catval;
 	if (cipher) {
 		opts += ',' + cipher;
 	}
@@ -918,9 +919,8 @@ function myCopy(msg,id) {
 		document.getElementById("mergepass").disabled = true;
 		document.getElementById("fPassword").focus();
 		$("#entry").autocomplete("flushCache");
-		$('#dfilter').empty();
-		$('#categ').empty();
 		gcatsw = gcats;
+		resetcats();
 	}
 }
 function autoClip(msg) {
@@ -1068,7 +1068,8 @@ function resetcats() {
 function hashpass(ob) {
 //	var re=/^.*(?=.{9,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
 	if (ob.value) {
-		hPub = genhash(ob.value + "T=|JkDp[)97oS-",1);
+//		hPub = genhash(ob.value + "T=|JkDp[)97oS-",1000);
+		hPub = genhash(ob.value,1000);
 		hPriv = genhash(ob.value,5000);
 		if (document.getElementById("enable").checked) {
 			$.ajax({
@@ -1100,6 +1101,7 @@ function hashpass(ob) {
 						showMsg(msg,"w3-yellow");
 						$("#entry").autocomplete("disable");
 						gsettings = 0;
+						gcatsw = gcats;
 						document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
 //						document.getElementById("pppaymt").style.display="none"; 
 					} else {
@@ -1107,9 +1109,7 @@ function hashpass(ob) {
 						var dates = data[0]['dates'].split(',');
 						if (data[0]['custcats'] !== undefined) {
 							gcatsw = data[0]['custcats'].split(',');
-						}
-						resetcats();
-
+						} else gcatsw = gcats;
 						var ainfo="";
 						var asum="";
 						if (!Date.now) {
@@ -1137,6 +1137,7 @@ function hashpass(ob) {
 					document.getElementById("username").value="";
 					document.getElementById("cPassword").value="";
 					setnotes("");
+					resetcats();
 				}
 			});
 		}
