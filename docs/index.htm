@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>Strongman Password Manager</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/css/w3.css">
+<body style="max-width:700px">
+
+<div class="w3-container w3-card-4 w3-light-grey w3-margin">
+<h2>Strongman Password Manager</h2>
+<p>(these a temporary, concise description.  Detailed documentation will be published later.</p>
+<p>Strongman Password Manager is an online password manager designed for extreme convenience and security.</p>
+<h4>COMPUTED PASSWORDS</h4>
+<p>In it's default mode, Strongman Password Manager <i>computes</i> passwords rather than store them.  This model avoids the need
+to access a password database. Passwords are computed on your computer, using javascript. In fact, after
+the page is loaded, there is no need for an Internet connection.<p>
+<p>The computed password system depends upon the "strength" of the master password. (In fact, the same is true
+for user-supplied, encrypted passwords - see below.) We strongly recommend the use of the "Diceware" system,
+which consists of passphrases composed of several randomly-selected words. A diceware passphrase consisting of
+7 words will be completely unbreakable for the foreseeable future.</p>
+<p>For your convenience in generating diceware passphrases, we recommend this <a href='https://www.rempe.us/diceware/#eff'>
+Diceware passphrase generator.</a>  (If that link ever become unavailable, we are hosting the same password generator
+<a href='/diceware'> here</a>). Note that this Diceware password generator uses an improved wordlist to generate
+master passphrases that are easier to remember and type. <a href='https://www.eff.org/deeplinks/2016/07/new-wordlists-random-passphrases'>more information</a>.</p>
+<p>Passwords are computed by taking sha256 hashes of your master passphrase, a 4 digit PIN, the domain, and the username
+for the domain, all concatenated together. 10000 rounds of sha256 hashes are calculated (to slow down brute force
+hacking attempts), and the final hash is used to extract what is termed "entropy" in cryptographic
+circles. Entropy is simply a way of referring to randomness or unpredictability.</p>
+<p>This entrophy is used to build the computed password based on the selected character sets and password length.
+In order to ensure that at least one character of the selected character sets is included, more entrophy
+is extracted.  The resulting password is extremely secure.</p>
+<p>One issue with using computed passwords is that you must provide not only the master password and domain
+name, but also the username, character classes (characters from which to build the password), and
+length. This extra information will vary from site to site.  In order to not have to remember them, Standish
+Password Manager will normally save them for you on our server. Note that the master password is <i>never</i>
+transmitted anywhere. The actual password computation takes place only on your computer.</p>
+<p>By allowing domain, username, and options to be saved on our server, password computation becomes
+extremely fast and easy. You need only enter your master password, then change to the "Domain" field
+and start typing the domain name.  A popup list of your matching domains will appear, with usernames visible.
+Upon selecting the domain/username combination, the password is computed and you are ready to click the
+"copy" button to copy it to your clipboard.<p>
+<h4>STORED PASSWORDS</h4>
+<p>This "computed password" method, though ensuring security, has one inconvenience: you are essentially
+obligated to use the computed password.  You will have to update your passwords at the sites you use.</p>
+<p>But suppose you have some passwords that you don't want to update, or don't have time to update? Suppose
+you already have very secure passwords that you have memorized, and want to keep in a password manager only in
+case you forget one of them? Or suppose you use a site that insists on, for example, a certain <i>number</i>
+of a character class (such as 2 uppercase letters, 2 lowercase letters, etc.) In that case, you may not be able to use
+a computed password for that site</p>
+<p>For all the situations where you prefer to use <i>your own</i> password rather than a computed one, Standish
+Password Manager offers the option to store your password to the server, encrypted with AES256 ("military grade"
+encryption). As with computed passwords, your master password never leaves your computer.  The AES256
+encryption is done via javascript, on your computer, and only the <i>encrypted</i> password is transmitted
+to our server.  <i>This method is just as secure as the "computed password" method.</i>
+</p>
+<p>
+Lloyd Standish
+author
+tel 631-402-1171
+lloyd at crnatural.net (spam prevention: replace "at" with "@" and remove spaces)
+</p>
+</div>

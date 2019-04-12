@@ -1,0 +1,78 @@
+/* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 480px) {
+	.w3-large {
+		font-size:24px!important;
+		}
+	.w3-padding {
+		padding:4px 8px!important;
+		}
+}
+/*
+input[id="entry"] {
+    width: 100%;
+    border: 1px solid #ccc!important;
+    border-radius: 4px;
+    font-size: 16px;
+    background-image: url('/image/internet.png');
+    background-position: 8px 8px; 
+    background-repeat: no-repeat;
+    padding: 7px 15px 7px 35px;
+}
+*/
+.icon-input {
+    border: 1px solid #ccc!important;
+    font-size: 14px;
+    background-position: 6px 6px; 
+    background-repeat: no-repeat;
+    padding: 7px 15px 7px 35px;
+}
+input[id="entry"] {
+    background-image: url('../image/internet.png');
+}
+input[id="fPassword"] {
+    background-image: url('../image/key.png');
+}
+input[id="username"] {
+    background-image: url('../image/user.png');
+}
+input[id="cPassword"] {
+    background-image: url('../image/lock.png');
+}
+span.selmode {
+    float: left;
+    line-height: 80%;
+    display: inline-block;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 160px;
+  background-color: #8512d5;
+  color: #fff;
+  text-align: center;
+  padding: 6px;
+  border-radius: 6px;  /* This defines tooltip text position */
+  position: absolute;
+  z-index: 1;
+  top: -15px;
+  left: 110%;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent black transparent transparent;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
