@@ -26,7 +26,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.11";
+$smversion = "1.12";
 ?>
 <!DOCTYPE html>
 <html>
@@ -260,7 +260,7 @@ $(function(){
 		if (!confirm("Are you sure to want to delete the Strongman account associated with the provided master password? If a matching account is found, if will be irrevocably removed, and all passwords it contains lost.")) {
 			return;
 		}
-		var sPub = genhash(delaccountmp,1);
+		var sPub = genhash(delaccountmp,1000);
 		if (sPub == hPub) {
 			if (!confirm("WARNING: The password provided is for your currently open account. Are you sure you want to remove this account?")) {
 				return;
@@ -296,7 +296,7 @@ $(function(){
 			if (!confirm("Are you sure to want to import all password data from the Strongman account associated with the master password you supplied? If a matching account is found, all computed passwords will be converted to AES-encrypted passwords and added to your currently open account. Settings such as custom category names will not be imported. Imported passwords will overwrite any matching password entries in the destination. The source Strongman account will not be deleted.  You may wish to do that using the 'Delete Strongman Account' option.")) {
 				return;
 			}
-			var sPub = genhash(sourcemp + "T=|JkDp[)97oS-",1);
+			var sPub = genhash(sourcemp,1000);
 			if (sPub == hPub) {
 				alert("ERROR: The password provided is for your currently open account. Please click the help icon");
 				return;
