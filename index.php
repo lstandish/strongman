@@ -26,7 +26,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.12";
+$smversion = "1.13";
 ?>
 <!DOCTYPE html>
 <html>
@@ -205,6 +205,9 @@ $(function(){
 	});
 	$('.setMatch').click(function() {
 		setmatch();
+	});
+	$("#permitnodw").click(function() {
+		setnodw();
 	});
 	$("#prefixon").click(function() {
 		initprefix(document.getElementById("prefixon").checked);
@@ -486,6 +489,7 @@ $(function(){
 		$(this).toggleClass("fa-eye-slash");
 	});
 	<?=(isset($_COOKIE["matchoff"])) ? "initmatch(0);" : "initmatch(1);";?>
+	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
 	resetcats();
 	if (getCookie("offline")) {
 		$("#entry").autocomplete("disable");
@@ -774,8 +778,11 @@ function ajaxsavecat() {
 			setoffline();
 		},
 		success: function(retval) {
-			alert("Category saved.");
-			$("#entry").autocomplete("flushCache");
+			if (retval) alert("You need to Compute or Save your password before you can change the category.");
+			else {
+				alert("Category saved.");// lgs2 need to add check for retval 1 and 
+				$("#entry").autocomplete("flushCache");
+			}
 		}
 	});
 }
@@ -810,6 +817,14 @@ function initmatch(ismatch) {
 		$("#entry").autocomplete("matchoff");
 	}
 }
+function initnodw(weak) {
+	if (weak) {
+		document.getElementById("permitnodw").checked=true;
+	} else {
+		document.getElementById("permitnodw").checked=false;
+	}
+}
+
 function initprefix(on) {
 	if (on) {
 		$("#entry").autocomplete("prefixon");
@@ -836,12 +851,21 @@ function setmatch() {
 		document.getElementById('entry').focus();
 	}
 }
+function setnodw() {
+	if (!document.getElementById("permitnodw").checked) {
+		eraseCookie("permitnodw");
+	} else if (confirm("Are you sure you want to allow non-Diceware master passwords? Note that anything less than a pseudo/random 9-character password of mixed characters or 6+ word 'Diceware' type passphrase is INSECURE and could lead to your account being hacked!"))
+	{
+		setCookie("permitnodw","1",1000);
+	}
+}
+
 function help(id) {
 	var msg;
 	if (id == 'filter') {
 		msg = "<p><strong>See all</strong> causes the dropdown list to show all domain-usernames password entries in your account. When unchecked, it will show only domain-username entries matching the letters you type.</p><p><strong>Delete</strong> causes the selected entry to be removed from the server.</p><p><strong>Refresh</strong> (<i class='fa fa-refresh'></i>) updates the domain-username information from the server. This is useful when sharing an account with co-workers.";
 	} else if (id == 'password') {
-		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you choose because it is easy to remember.</p><p>Since memorizing a minimim 9 character random password is difficult, we strongly recommend <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>diceware passphrases</a>. They can be generated online <a href='https://www.rempe.us/diceware/#eff' target='_blank'>here</a>.</p>";
+		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you choose because it is easy to remember.</p><p>Since memorizing a minimim 9 character random password is difficult, we strongly recommend <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>diceware passphrases</a>. They can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p>";
 	} else if (id == 'passtype') {
 		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button).</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password.</p><p>Computed passwords are <strong>not</strong> stored on the server; they are calculated by your browser.</p>If you want to use your own password, click the edit button, or simply click into the Password field. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
 	} else if (id == 'mergepass') {
@@ -1066,7 +1090,6 @@ function resetcats() {
 }
 
 function hashpass(ob) {
-//	var re=/^.*(?=.{9,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
 	if (ob.value) {
 //		hPub = genhash(ob.value + "T=|JkDp[)97oS-",1000);
 		hPub = genhash(ob.value,1000);
@@ -1094,15 +1117,36 @@ function hashpass(ob) {
 					if (data[0]['settings'] == "empty") {
 						var msg = "Warning: No stored password information found for this master password. If this is the first use of this master password, you can ignore this warning.  Otherwise, this master password is incorrect, and calculated passwords will NOT work.";
 						var ob = document.getElementById("fPassword");
-						var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
-						if (!re.test(ob.value) && ob.value.length<40) {
-							msg += "<p>Furthermore, we consider this password to be weak. We strongly recommend you choose a better one.</p><p>We recommend a random password at least 9 characters long, having at least one lowercase letter, uppercase letter, and digit. Or (better) a 40+ character 'passphrase'.</p><p>Since it is hard to memorize a random 9 character password, we recommend a 7 word 'diceware' type passphrase. It is easy to remember yet unbreakable even by attackers with huge resources. <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read more</a>. A good online Diceware passphrase generator is <a href='https://www.rempe.us/diceware/#eff'>here</a>.</p>";
+//						var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/; // no forced special chars
+						var re=/^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
+						var dw=/^\s*[a-zA-Z]+(?:(-| +)[a-zA-Z]+){5,}\S*?\s*$/;
+						var dwnosp=/^\s*[a-zA-Z]{40,}\S*?\s*$/;
+						var accepted = 0;
+						if (!document.getElementById("permitnodw").checked) {
+							if (dw.test(ob.value) || dwnosp.test(ob.value)) {
+								msg += "<p>It looks like you chose a 6+ word passphrase. We hope this is a Diceware type passphrase (generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>) and not a sentence or word combination you thought up. If you invented this passphrase <strong>yourself</strong>, it is probably NOT secure.";
+								accepted = 1;
+							} else msg += "<p>It appears you did not provide a proper 'Diceware' type master passphrase. A strong Diceware passphrase consists of 6+ RANDOMLY CHOSEN words, out of a dictionary of 7,776 words. It provides extreme security, while being relatively easy to memorize. A password consisting of mixed randomly-chosen characters, on the other hand, is VERY hard to memorize.</p><p>For this reason, by default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). This requirement can be overridden in Strongman settings. Please <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a> before doing that.</p>";
+						} else {
+							msg += "<h4>Non-Diceware passwords permitted via settings override (not recommended)</h4>";
+							if (re.test(ob.value)) {
+								accepted = 1;
+								msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
+							} else 	msg += "<p>When the Diceware passphrase requirement is overidden, our password strength test looks for at least 9 characters, including a lowercase letter, an uppercase letter, a digit, and a special character from (!@#$%^&*\-_=+{};:,<.>).</p><p>Your new master password failed this test.</p><p>Please use a <strong>random</p> password rather than a contrived one.  Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
 						}
-						showMsg(msg,"w3-yellow");
-						$("#entry").autocomplete("disable");
-						gsettings = 0;
-						gcatsw = gcats;
-						document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
+//However, just having these characters doesn't make a password random. People avoid random mixed-character passwords because they are <strong>very</strong> hard to memorize.</p><p>So what we <strong>recommend</strong> is a 6-7 word 'diceware' passphrase, which, while random, is much easier to memorize. It is unbreakable even by attackers with huge resources. <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Read more</a>. A good online Diceware passphrase generator is <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Of course, a truly random 9+ character password might not contain, for example, a digit. So, you can override the password strength tester by checking 'Permit weak master passwords' in <strong>Settings and Tools</strong> near the bottom of Strongman, then try again.</p>";
+						if (!accepted) {
+							hPub = "";
+							hPriv = "";
+							showMsg(msg,"w3-yellow");
+							return;
+						} else {
+							showMsg(msg,"w3-yellow");
+							$("#entry").autocomplete("disable");
+							gsettings = 0;
+							gcatsw = gcats;
+							document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
+						}
 //						document.getElementById("pppaymt").style.display="none"; 
 					} else {
 						gsettings = data[0]['settings'];
@@ -1165,7 +1209,7 @@ function checkpass(ob) {
     var lacking = "";
     var focusid;
     list: {
-	if (document.getElementById('fPassword').value.trim() == "") {
+	if (document.getElementById('fPassword').value.trim() == "" || hPub == "") {
 		lacking += "master password, ";
 		focusid = 'fPassword';
 	}
@@ -1365,7 +1409,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </div><br>
 
 <a href="javascript:togAccordian('settingsdiv');">Settings and Tools</a>
-<span style="float:right; line-height:90%;"><small>arm icon by <a href="https://www.freepik.com" target="_blank">Freepik</a><br>from <a href="https://www.flaticon.com/" target="_blank">www.flaticon.com</a></small></span>
+<span style="float:right; line-height:90%;"><small>arm icon by <a target='_blank' href="https://www.freepik.com" target="_blank">Freepik</a><br>from <a target='_blank' href="https://www.flaticon.com/" target="_blank">www.flaticon.com</a></small></span>
 <div id="settingsdiv" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">
   <i onclick="javascript:togAccordian('settingsdiv');" class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;"></i>
 <p>
@@ -1391,6 +1435,10 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <input class="w3-input w3-border w3-round" type="text" id="delaccountmp" name="delaccount" placeholder="Master password of Strongman account to REMOVE.">
 </p>
 <button id="delaccountbut" class="w3-button w3-blue w3-small w3-round">Delete</button>
+<p>
+<label><strong>Security</label></strong><br>
+<input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords (Probably insecure, not recommended.)
+</p>
 </div><br>
 <a href="javascript:togAccordian('myaccount');">My Account</a>
 <div id="myaccount" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">

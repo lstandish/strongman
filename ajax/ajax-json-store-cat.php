@@ -47,9 +47,10 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 		'dates' => "$start_date,$aes_expire" // 21 days free aes password storage.
 	    );
 	$config_data = array();
+	$retval += 1;
     }
-	if ($aes_expire > -1 and time() > $aes_expire) $retval += 1;  // account expired
-	if ($aes_expire - $start_date > $trial_secs) $retval += 4; // paid account
+//	if ($aes_expire > -1 and time() > $aes_expire) $retval += 1;  // account expired
+//	if ($aes_expire - $start_date > $trial_secs) $retval += 4; // paid account
 // when checking bits, enclose in parens before negating
 	if (!($retval & 1)) {
 		$changed = true;
