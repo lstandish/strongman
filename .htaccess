@@ -1,7 +1,7 @@
 #<FilesMatch "index*.php">
-AuthUserFile /var/www/lloyd/.htpasswd
-AuthType Basic
-AuthName "Resticted Access"
-Require valid-user
+#AuthUserFile /var/www/lloyd/.htpasswd
+#AuthType Basic
+#AuthName "Resticted Access"
+#Require valid-user
 #</FilesMatch>
 DirectoryIndex index.html index.php
