@@ -26,7 +26,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.13";
+$smversion = "1.14";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1132,7 +1132,7 @@ function hashpass(ob) {
 							if (re.test(ob.value)) {
 								accepted = 1;
 								msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
-							} else 	msg += "<p>When the Diceware passphrase requirement is overidden, our password strength test looks for at least 9 characters, including a lowercase letter, an uppercase letter, a digit, and a special character from (!@#$%^&*\-_=+{};:,<.>).</p><p>Your new master password failed this test.</p><p>Please use a <strong>random</p> password rather than a contrived one.  Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
+							} else 	msg += "<p>When the Diceware passphrase requirement is overidden, our password strength test looks for at least 9 characters, including a lowercase letter, an uppercase letter, a digit, and a special character from (!@#$%^&*\-_=+{};:,<.>).</p><p>Your new master password failed this test.</p><p>Please use a <strong>random</strong> password rather than a contrived one.  Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
 						}
 //However, just having these characters doesn't make a password random. People avoid random mixed-character passwords because they are <strong>very</strong> hard to memorize.</p><p>So what we <strong>recommend</strong> is a 6-7 word 'diceware' passphrase, which, while random, is much easier to memorize. It is unbreakable even by attackers with huge resources. <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Read more</a>. A good online Diceware passphrase generator is <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Of course, a truly random 9+ character password might not contain, for example, a digit. So, you can override the password strength tester by checking 'Permit weak master passwords' in <strong>Settings and Tools</strong> near the bottom of Strongman, then try again.</p>";
 						if (!accepted) {
