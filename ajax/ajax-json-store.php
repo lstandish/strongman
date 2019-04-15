@@ -74,9 +74,9 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 // when checking bits, enclose in parens before negating
 	if (!($retval & 1)) {
 		foreach ($entries as $entry) {
-			$domain = $entry["domain"];
+			$domain = preg_replace('/[?{}|&~!()^"]/',"",$entry["domain"]);
 			$options = $entry["opts"];
-			$user = $entry["user"];
+			$user = preg_replace('/[?{}|&~!()^"]/',"",$entry["user"]);
 			$warn = false;
 			$changed = true;
 			if (isset($config_data[$domain][$user])) {

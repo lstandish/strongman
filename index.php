@@ -26,7 +26,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.14";
+$smversion = "1.15";
 ?>
 <!DOCTYPE html>
 <html>
@@ -498,6 +498,7 @@ $(function(){
 		document.getElementById("matchoff").disabled=true;
 	}
 	version = is_ios();
+
 	// clear out user data upon navigate away
 	window.onbeforeunload = function(event) {
 		myCopy("lock","cPassword");
@@ -1204,6 +1205,29 @@ function verifypp() {
 		return false;
 	}
 }
+function validateuserdom(ob) {
+	var re = /[?{}|&~!()^"]+/;
+	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"";
+//alert("fired with " + ob.id + " " + ob.value);
+	if (ob.id == "entry") {
+		if (re.test(ob.value)) {
+			alert(msg);
+			ob.value = "";
+//			openselect();
+			return false;
+		} else ob.value=ob.value.toLowerCase();
+	} else if (ob.id == "username") {
+		if (re.test(ob.value)) {
+			alert(msg);
+			ob.value = "";
+//			ob.focus();
+			return false;
+		}
+	}
+	return true;
+}
+
+
 
 function checkpass(ob) {
     var lacking = "";
@@ -1348,7 +1372,7 @@ function ckpassedit(ob) {
   <label><strong>Master Password</strong></label> <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('password');" title="Password Help"></i>
 <i class="fa fa-lock w3-large" onclick="lock();" style="color:goldenrod;" title="Clear master password, site password, and clipboard" id="lockstate"></i>
 <i class="w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyemaster"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="fPassword" id='fPassword' type='password' placeholder="Enter a strong passphrase">
+  <input class="w3-input w3-border w3-round icon-input" name="fPassword" id='fPassword' type='password' placeholder="Enter a strong passphrase" tabindex="1">
   </p>
   <p>
   <label class="tooltip"><strong>Domain</strong><span class="tooltiptext">Choose from list or enter new domain</span></label> &nbsp;
@@ -1360,12 +1384,12 @@ function ckpassedit(ob) {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' onclick="checkpass(this);" placeholder="Enter a domain" onblur="this.value=this.value.toLowerCase();" onchange="document.getElementById('username').value = '';">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' onclick="checkpass(this);" placeholder="Enter a domain" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
   <i class='fa fa-copy w3-large' onclick="myCopy('Username','username');" title="Copy username to clipboard"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onchange="setnotes(''); document.getElementById('incr').value='1';">
+  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3">
   </p>
 <div id='optionsdiv' class="w3-panel w3-leftbar w3-hide w3-display-container">
 <p>
@@ -1389,7 +1413,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
  <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick='help("passtype");'></i>
 <span class="w3-row">
 <span class="w3-col s7">
-<input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='text' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;">
+<input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='text' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4">
 </span>
 <span class="w3-col s4" style="margin: 8px 0 0 3px;">
   <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options">Compute</button>
@@ -1409,7 +1433,8 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </div><br>
 
 <a href="javascript:togAccordian('settingsdiv');">Settings and Tools</a>
-<span style="float:right; line-height:90%;"><small>arm icon by <a target='_blank' href="https://www.freepik.com" target="_blank">Freepik</a><br>from <a target='_blank' href="https://www.flaticon.com/" target="_blank">www.flaticon.com</a></small></span>
+<span style="float:right; line-height:90%;"><small>arm icon by <a target='_blank' href="https://www.freepik.com" target="_blank">Freepik</a><br>from <a target='_blank' href="https://www.flaticon.com/" target="_blank">www.flaticon.com</a><br>
+<a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>about Diceware</a> <a target='_blank' href='https://www.rempe.us/diceware/#eff'>generate</a></small></span>
 <div id="settingsdiv" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">
   <i onclick="javascript:togAccordian('settingsdiv');" class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;"></i>
 <p>
