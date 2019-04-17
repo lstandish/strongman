@@ -26,7 +26,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.15";
+$smversion = "1.16";
 ?>
 <!DOCTYPE html>
 <html>
@@ -864,11 +864,11 @@ function setnodw() {
 function help(id) {
 	var msg;
 	if (id == 'filter') {
-		msg = "<p><strong>See all</strong> causes the dropdown list to show all domain-usernames password entries in your account. When unchecked, it will show only domain-username entries matching the letters you type.</p><p><strong>Delete</strong> causes the selected entry to be removed from the server.</p><p><strong>Refresh</strong> (<i class='fa fa-refresh'></i>) updates the domain-username information from the server. This is useful when sharing an account with co-workers.";
+		msg = "<p><strong>Search off</strong> (incremental search off) causes the dropdown list to show all domain-username password entries in your account. When unchecked, it does incremental searching of domain-username entries matching the letters you type. Note that there is a relevant setting (see Settings and Tools/Settings): 'Domain incremental search matches from beginning'</p><p><strong>Delete</strong> causes the selected entry to be removed from the server.</p><p><strong>Refresh</strong> (<i class='fa fa-refresh'></i>) updates the domain-username information from the server. This is useful when sharing an account with co-workers.";
 	} else if (id == 'password') {
-		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you choose because it is easy to remember.</p><p>Since memorizing a minimim 9 character random password is difficult, we strongly recommend <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>diceware passphrases</a>. They can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p>";
+		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you invent to make it easy to remember.</p><p>Since memorizing a minimum 9 character random password is very difficult, we instead recommend Diceware passphrases. They are extremely secure, yet also easy to memorize. Read more about Diceware <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>here</a>. Diceware passphrases can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Strongman now <strong>requires</strong> a 6+ word master passphrase, unless overridden by a setting (see Settings and Tools/Security at the bottom of the app).</p>";
 	} else if (id == 'passtype') {
-		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button).</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password.</p><p>Computed passwords are <strong>not</strong> stored on the server; they are calculated by your browser.</p>If you want to use your own password, click the edit button, or simply click into the Password field. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
+		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button).</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password (see below).</p><p>Computed passwords are <strong>not</strong> stored on the server; they are calculated by your browser.</p>If you want to use your own password or modify a computed password, click the edit button, or simply click into the Password field and make your changes. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
 	} else if (id == 'mergepass') {
 		msg = "<p>This option imports all the passwords and secure notes from a <strong>second</strong> Strongman account. This is primarily used to change the master password.</p><p><strong>To change a master password:</strong><ol><li>Enter the new master password and compute or save a password.  That creates a new Strongman account with the new master password.</li><li>Do the password import, specifying the master password of the old account.</li><li>After the passwords and notes are imported, you can delete the old Strongman account via the 'Delete Strongman Account' option.</li></ol>";
 	}
@@ -1139,6 +1139,8 @@ function hashpass(ob) {
 						if (!accepted) {
 							hPub = "";
 							hPriv = "";
+							$("#entry").autocomplete("flushCache");
+							$("#entry").autocomplete("close");
 							showMsg(msg,"w3-yellow");
 							return;
 						} else {
@@ -1160,14 +1162,9 @@ function hashpass(ob) {
 						if (!Date.now) {
 							Date.now = function() { return new Date().getTime(); }
 						}
-//						var ftstarted = dates[1];
 						var startdate = moment(dates[0]*1000).format('L');
-//						if (dates[1] == -1) {
 						document.getElementById("accountdata").innerHTML="Free account, started " + startdate;
-//							document.getElementById("pppaymt").style.display="none"; 
-//							asum = "(permanent non-expiring account)";
-						$("#entry").autocomplete("enable");
-//						document.getElementById("asummary").innerHTML=asum;
+//						$("#entry").autocomplete("enable");
 						document.getElementById("msgbox").style.display='none';
 						document.getElementById("savesettings").disabled = false;
 						document.getElementById("mergepass").disabled = false;
@@ -1176,7 +1173,8 @@ function hashpass(ob) {
 					var prefixon = (gsettings & (1 << 1));
 					document.getElementById("prefixon").checked = prefixon;
 					$("#entry").autocomplete("flushCache");
-					$("#entry").autocomplete("disable");
+//					$("#entry").autocomplete("close");
+//					$("#entry").autocomplete("disable");
 					$("#entry").autocomplete("enable");
 					initprefix(prefixon);
 					document.getElementById("username").value="";
@@ -1391,15 +1389,6 @@ function ckpassedit(ob) {
   <i class='fa fa-copy w3-large' onclick="myCopy('Username','username');" title="Copy username to clipboard"></i>
   <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3">
   </p>
-<div id='optionsdiv' class="w3-panel w3-leftbar w3-hide w3-display-container">
-<p>
-  <label><strong>Password Computation Options</strong> <i class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;" onclick="togAccordian('optionsdiv');"></i></label><br>
-Characters:<br><input type="checkbox" id="lcase" name="lcase" value="1" checked>&nbsp;a-z &nbsp;<input type="checkbox" id="ucase" name="ucase" value="2" checked>&nbsp;A-Z &nbsp;
-<input type="checkbox" id="num" name="num" value="4" checked>&nbsp;0-9 &nbsp;<input type="checkbox" id="symb" name="symb" value="8" checked>&nbsp;symb<br>
-Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" value="14" size="2" maxlength="2" min="4" max="35" onblur="validatelen(this);">
- Password No.&nbsp;<input class="w3-border w3-round" type="number" id="incr" name="incr" value="1" size="2" maxlength="2" min="1" max="99" onblur="validateincr(this);" title="Increment to calculate a new password">
-</p>
-</div>
   <p>
   <label><strong>Password</strong></label><br>
 <i class="w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyecomp"></i>
@@ -1411,6 +1400,15 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </select>
  <a onclick="ajaxsavecat();" href="javascript:void(0);" id="catsavelink" title="Save category">save</a>
  <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick='help("passtype");'></i>
+<div id='optionsdiv' class="w3-panel w3-leftbar w3-hide w3-display-container">
+<p>
+  <label><strong>Password Computation Options</strong> <i class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;" onclick="togAccordian('optionsdiv');"></i></label><br>
+Characters:<br><input type="checkbox" id="lcase" name="lcase" value="1" checked>&nbsp;a-z &nbsp;<input type="checkbox" id="ucase" name="ucase" value="2" checked>&nbsp;A-Z &nbsp;
+<input type="checkbox" id="num" name="num" value="4" checked>&nbsp;0-9 &nbsp;<input type="checkbox" id="symb" name="symb" value="8" checked>&nbsp;symb<br>
+Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" value="14" size="2" maxlength="2" min="4" max="35" onblur="validatelen(this);">
+ Password No.&nbsp;<input class="w3-border w3-round" type="number" id="incr" name="incr" value="1" size="2" maxlength="2" min="1" max="99" onblur="validateincr(this);" title="Increment to calculate a new password">
+</p>
+</div>
 <span class="w3-row">
 <span class="w3-col s7">
 <input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='text' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4">
@@ -1440,7 +1438,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <p>
 <label><strong>Settings</label></strong><br>
 <input type="checkbox" id="manualcopy" name="manualcopy" value="1"> Do not automatically copy passwords to clipboard<br>
-<input type="checkbox" id="prefixon" name="prefixon" value="1" checked> Domain incr search matches from beginning
+<input type="checkbox" id="prefixon" name="prefixon" value="1" checked> Domain incremental search matches from beginning
 </p>
 <p>
 <label><strong>Customize Category Names</label></strong><br>
