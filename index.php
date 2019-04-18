@@ -1377,7 +1377,7 @@ function ckpassedit(ob) {
 <select style='font-size: 80%;' name="dfilter" id="dfilter" onclick="openselect();">
 <option value="-1" selected>No filter</option>
 </select>
-<input class="setMatch" type="checkbox" id='matchoff' title="If checked, show all entries. If unchecked, incrementally search entries" name="setMatch" <?=isset($_COOKIE["matchoff"]) ? "checked" : "";?>> Search off
+<input class="setMatch" type="checkbox" id='matchoff' title="If checked, show all entries matching Filter. If unchecked, incrementally search entries matching Filter" name="setMatch" <?=isset($_COOKIE["matchoff"]) ? "checked" : "";?>> Search off
  &nbsp;<input class="setMatch" type="checkbox" id='matchdel' name="matchdel" title="Turn delete mode on/off"> Del
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
