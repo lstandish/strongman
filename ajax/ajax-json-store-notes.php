@@ -57,34 +57,36 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	if ($aes_expire - $start_date > $trial_secs) $retval += 4; // paid account
 // when checking bits, enclose in parens before negating
 	if (!($retval & 1)) {
-		$warn = false;
-		$changed = true;
-		if (isset($config_data[$domain][$user])) {
-			$onotes = explode(",",$config_data[$domain][$user])[3];
-			$changed = ($notes != $onotes);
-			$warn = $changed;
-			if ($check) {
-				if ($warn) $retval += 8;
-			} elseif ($changed) {
-				$work = $config_data[$domain][$user];
-				$aopts = explode(",",$config_data[$domain][$user]);
-				$aopts[3] = $notes;
-				$config_data[$domain][$user]=implode(",",$aopts);
-				ksort($config_data);
-				$config_data = array('_my_account_' => $account) + $config_data;
-				$new_content = '';
-				foreach ($config_data as $section => $section_content) {
-					if ($section) {
-						$new_content .= "[$section]\n";
-						foreach ($section_content as $key => $value) {
-							$new_content .= "$key = $value\n";
+		if (is_string($notes) and strlen($notes) < 657) {
+			$warn = false;
+			$changed = true;
+			if (isset($config_data[$domain][$user])) {
+				$onotes = explode(",",$config_data[$domain][$user])[3];
+				$changed = ($notes != $onotes);
+				$warn = $changed;
+				if ($check) {
+					if ($warn) $retval += 8;
+				} elseif ($changed) {
+					$work = $config_data[$domain][$user];
+					$aopts = explode(",",$config_data[$domain][$user]);
+					$aopts[3] = $notes;
+					$config_data[$domain][$user]=implode(",",$aopts);
+					ksort($config_data);
+					$config_data = array('_my_account_' => $account) + $config_data;
+					$new_content = '';
+					foreach ($config_data as $section => $section_content) {
+						if ($section) {
+							$new_content .= "[$section]\n";
+							foreach ($section_content as $key => $value) {
+								$new_content .= "$key = $value\n";
+							}
 						}
 					}
-				}
-				file_put_contents("$datapath/$hashPass", $new_content);
+					file_put_contents("$datapath/$hashPass", $new_content);
 //	file_put_contents ( "$datapath/mytest.txt","retval: ".print_r($retval,true) . "\n",FILE_APPEND);
-			}
-		} else $retval += 2; // can't save, no existing entry
+				}
+			} else $retval += 2; // can't save, no existing entry
+		}
 	}
     header("Content-Type: text/json; charset=UTF-8;");
     echo json_encode( $retval );

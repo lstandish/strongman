@@ -26,7 +26,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.16";
+$smversion = "1.17";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1061,7 +1061,7 @@ function setoptslen(opts,length) {
 function resetcats() {
 	var cathtml = "";
 	for (var i=0; i< gcatsw.length; i++) {
-		cathtml += "<input type='text' id='cc" + i + "' value='" + gcatsw[i] + "'> (default: " + gcats[i] + ")<br>";
+		cathtml += "<input type='text' maxlength='25' id='cc" + i + "' value='" + gcatsw[i] + "'> (default: " + gcats[i] + ")<br>";
 	}
 	document.getElementById('editcats').innerHTML = cathtml;
 	var sel = document.getElementById('dfilter');
@@ -1206,8 +1206,10 @@ function verifypp() {
 function validateuserdom(ob) {
 	var re = /[?{}|&~!()^"]+/;
 	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"";
+//	var maxlen;
 //alert("fired with " + ob.id + " " + ob.value);
 	if (ob.id == "entry") {
+//		maxlen = 150;
 		if (re.test(ob.value)) {
 			alert(msg);
 			ob.value = "";
@@ -1215,6 +1217,7 @@ function validateuserdom(ob) {
 			return false;
 		} else ob.value=ob.value.toLowerCase();
 	} else if (ob.id == "username") {
+//		maxlen = 100;
 		if (re.test(ob.value)) {
 			alert(msg);
 			ob.value = "";
@@ -1222,11 +1225,29 @@ function validateuserdom(ob) {
 			return false;
 		}
 	}
+/*
+	if (ob.value.length > maxlen) {
+		alert("Maximum length of this field is " + manlen);
+		return false;
+	}
+*/
 	return true;
 }
-
-
-
+/*
+function validatenotescpass(ob) {
+	var maxlen;
+	if (ob.id == "notes") {
+		maxlen = 640;
+	} else {
+		maxlen = 250;
+	}
+	if (ob.value.length > maxlen) {
+		alert("Maximum length of this field is " + manlen);
+		return false;
+	} else if (ob.id == "cPassword") ob.type = "password"
+	return true;
+}
+*/
 function checkpass(ob) {
     var lacking = "";
     var focusid;
@@ -1316,6 +1337,7 @@ function openselect() {
 		$("#entry").autocomplete("trigger"); // run the completion
 	}
 }
+
 function validatelen(ob) {
 	if (ob.value < 4 || ob.value > 35) {
 		alert("Generated password length must be between 4 and 35");
@@ -1332,6 +1354,7 @@ function validateincr(ob) {
 		ob.focus();
 	}
 }
+
 /*
 function ckpassedit(ob) {
 //	var changed = (ob.value != ob.getAttribute("oValue"));
@@ -1382,19 +1405,19 @@ function ckpassedit(ob) {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' onclick="checkpass(this);" placeholder="Enter a domain" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' onclick="checkpass(this);" placeholder="Enter a domain" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2" maxlength="70">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
   <i class='fa fa-copy w3-large' onclick="myCopy('Username','username');" title="Copy username to clipboard"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3">
+  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3" maxlength="50">
   </p>
   <p>
   <label><strong>Password</strong></label><br>
 <i class="w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyecomp"></i>
 <i class='fa fa-edit w3-large' onclick="editpass();" title="Edit password"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Password','cPassword');" title="Copy password to clipboard"></i>
-<i class='fa fa-navicon w3-large' onclick="togAccordian('optionsdiv');" title="Password Computation Settings"></i>
+<i class='fa fa-navicon w3-large' onclick="togAccordian('optionsdiv');" title="Password Computation Options"></i>
   <i class='fa fa-book w3-large' onclick="togAccordian('notesdiv');" title="Show/hide secure notes"></i>
 <select name="categ" id="categ">
 </select>
@@ -1411,7 +1434,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </div>
 <span class="w3-row">
 <span class="w3-col s7">
-<input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='text' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4">
+<input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='text' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4" maxlength="200">
 </span>
 <span class="w3-col s4" style="margin: 8px 0 0 3px;">
   <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options">Compute</button>
@@ -1421,7 +1444,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
   </p>
 <div id='notesdiv' class="w3-panel w3-leftbar w3-hide w3-pale-green w3-border-green w3-display-container">
 <label><strong>Secure Notes</strong> &nbsp;<a onclick="ajaxsavenotes(1);" href="javascript:void(0);" id="notessavelink">save</a><i class="fa fa-close w3-display-topright" onclick="togAccordian('notesdiv');"></i></label><br>
-<textarea rows="5" maxlength="300" name='notes' id='notes' placeholder='Content here will be AES-encrypted and stored on the server.' style="width:100%;"></textarea>
+<textarea rows="5" maxlength="640" name='notes' id='notes' placeholder='Content here will be AES-encrypted and stored on the server. Max length 640.' style="width:100%;"></textarea>
 </div>
 
 <div class="w3-panel w3-display-container" id='msgbox' style="display:none;">
@@ -1480,9 +1503,11 @@ fPassword.onfocus = function() {
 		fPassword.type = "text";
 	}
 };
+
 cPassword.onblur = function() {
 	cPassword.type = "password"
 };
+
 cPassword.onfocus = function() {
 	if ($("#eyecomp").hasClass("fa-eye")) {
 		cPassword.type = "text";

@@ -22,7 +22,7 @@ This file is part of Strongman.
     along with Strongman.  If not, see <https://www.gnu.org/licenses/>.
 */
     $hashPass = json_decode(stripslashes($_POST["hPass"]));
-    $settings = json_decode(stripslashes($_POST["settings"]));
+    $settings = (int) json_decode(stripslashes($_POST["settings"]));
     $cats = json_decode(stripslashes($_POST["cats"]),true); // cats is an array
     $beta_mode = true;
     $retval = 0;
@@ -55,7 +55,19 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	$config_data = array();
     }
 // when checking bits, enclose in parens before negating
-	if ($changed) {
+	$cont = is_array($cats);
+	if ($cont) {
+		foreach ($cats as $el) {
+			if (strlen($el) > 25) {
+				$cont = 0;
+				break;
+			}
+		}
+	}
+	if ($cont) {
+		$cont = ($settings >-1 and $settings < 4);
+	}
+	if ($cont and $changed) {
 		$account['settings'] = $settings;
 		$account['custcats'] = filter_var(implode(',',$cats), FILTER_SANITIZE_STRING);
 		ksort($config_data);

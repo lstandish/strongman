@@ -66,17 +66,29 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	$aes_expire = -1; // permanent free account
 	if ($aes_expire > -1 and time() > $aes_expire) $retval += 1;  // account expired
 	if ($aes_expire - $start_date > $trial_secs) $retval += 4; // paid account
-	if (substr_count($options,",") > 3) {
+//	if (substr_count($options,",") > 3) {
 // aes password to be stored
-		$retval += 2;
-	}
+//		$retval += 2;
+//	}
 
 // when checking bits, enclose in parens before negating
 	if (!($retval & 1)) {
 		foreach ($entries as $entry) {
 			$domain = preg_replace('/[?{}|&~!()^"]/',"",$entry["domain"]);
-			$options = $entry["opts"];
+			if (strlen($domain) > 70) continue;
 			$user = preg_replace('/[?{}|&~!()^"]/',"",$entry["user"]);
+			if (strlen($user) > 50 ) continue;
+			$options = $entry["opts"];
+			$awork = explode(",",$options);
+			$cont = (sizeof($awork)<7);
+			if ($cont) {
+				$cont = ($awork[0] > 0 and $awork[0] < 16);
+				if ($cont) $cont = ($awork[1] > 3 and $awork[1] < 35);
+				if ($cont) $cont = ($awork[2] > -1 and $awork[2] < 100);
+				if ($cont) $cont = (preg_match('/[?{}|&~!()^"]/',$awork[3]) === 0 and strlen($awork[3]<1280));
+				if ($cont and sizeof($awork)>5) $cont = (preg_match('/[?{}|&~!()^"]/',$awork[5]) === 0 and strlen($awork[5]<400));
+			}
+			if (!$cont) continue;
 			$warn = false;
 			$changed = true;
 			if (isset($config_data[$domain][$user])) {

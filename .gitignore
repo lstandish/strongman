@@ -1,2 +1,4 @@
-notes-skip-worktree
 .htaccess
+/data-source/*
+!/data-source/
+!/data-source/.htaccess
