@@ -196,6 +196,7 @@ $(function(){
 						}
 					}
 				}
+//				$("#entry").autocomplete("enable");
 				return result;
 			}
 		},
@@ -446,7 +447,8 @@ $(function(){
 	});
 	$("#enable").click(function() {
 		if ($(this).is(":checked")) {
-			$("#entry").autocomplete("enable");
+//			$("#entry").autocomplete("enable");
+//lgs2
 			document.getElementById("matchoff").disabled = false;
 			document.getElementById("matchdel").disabled = false;
 			eraseCookie("offline");
@@ -491,6 +493,8 @@ $(function(){
 	<?=(isset($_COOKIE["matchoff"])) ? "initmatch(0);" : "initmatch(1);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
 	resetcats();
+//lgs2
+	$("#entry").autocomplete("disable");
 	if (getCookie("offline")) {
 		$("#entry").autocomplete("disable");
 		$("#entry").autocomplete("matchon");
@@ -944,6 +948,8 @@ function myCopy(msg,id) {
 		document.getElementById("mergepass").disabled = true;
 		document.getElementById("fPassword").focus();
 		$("#entry").autocomplete("flushCache");
+		//lgs2
+		$("#entry").autocomplete("disable");
 		gcatsw = gcats;
 		resetcats();
 	}
@@ -1121,19 +1127,20 @@ function hashpass(ob) {
 //						var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/; // no forced special chars
 						var re=/^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
 						var dw=/^\s*[a-zA-Z]+(?:(-| +)[a-zA-Z]+){5,}\S*?\s*$/;
-						var dwnosp=/^\s*[a-zA-Z]{40,}\S*?\s*$/;
+						var dwnosp=/^\s*[a-zA-Z]{24,}\S*?\s*$/;
 						var accepted = 0;
+						var fail = " provided does not pass our strength test.</h3>";
 						if (!document.getElementById("permitnodw").checked) {
 							if (dw.test(ob.value) || dwnosp.test(ob.value)) {
 								msg += "<p>It looks like you chose a 6+ word passphrase. We hope this is a Diceware type passphrase (generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>) and not a sentence or word combination you thought up. If you invented this passphrase <strong>yourself</strong>, it is probably NOT secure.";
 								accepted = 1;
-							} else msg += "<p>It appears you did not provide a proper 'Diceware' type master passphrase. A strong Diceware passphrase consists of 6+ RANDOMLY CHOSEN words, out of a dictionary of 7,776 words. It provides extreme security, while being relatively easy to memorize. A password consisting of mixed randomly-chosen characters, on the other hand, is VERY hard to memorize.</p><p>For this reason, by default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). This requirement can be overridden in Strongman settings. Please <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a> before doing that.</p>";
+							} else msg += "<h3>The Diceware passphrase" + fail + "<p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>An acceptable Diceware passphrase consists of 6+ random words. If you run the words together, the total length should be at least 24.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). The requirement for a Diceware passphrase can be overridden in Strongman settings.</p>";
 						} else {
 							msg += "<h4>Non-Diceware passwords permitted via settings override (not recommended)</h4>";
 							if (re.test(ob.value)) {
 								accepted = 1;
 								msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
-							} else 	msg += "<p>When the Diceware passphrase requirement is overidden, our password strength test looks for at least 9 characters, including a lowercase letter, an uppercase letter, a digit, and a special character from (!@#$%^&*\-_=+{};:,<.>).</p><p>Your new master password failed this test.</p><p>Please use a <strong>random</strong> password rather than a contrived one.  Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
+							} else 	msg += "<h3>The password" + fail +"<p>A non-Diceware master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,\<.\>.</p><p>Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
 						}
 //However, just having these characters doesn't make a password random. People avoid random mixed-character passwords because they are <strong>very</strong> hard to memorize.</p><p>So what we <strong>recommend</strong> is a 6-7 word 'diceware' passphrase, which, while random, is much easier to memorize. It is unbreakable even by attackers with huge resources. <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Read more</a>. A good online Diceware passphrase generator is <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Of course, a truly random 9+ character password might not contain, for example, a digit. So, you can override the password strength tester by checking 'Permit weak master passwords' in <strong>Settings and Tools</strong> near the bottom of Strongman, then try again.</p>";
 						if (!accepted) {
@@ -1142,14 +1149,17 @@ function hashpass(ob) {
 							$("#entry").autocomplete("flushCache");
 							$("#entry").autocomplete("close");
 							showMsg(msg,"w3-yellow");
+//							alert("Your new master password failed our password strength test. Please read the messages in yellow.");
+//							document.getElementById('fPassword').focus();
 							return;
 						} else {
 							showMsg(msg,"w3-yellow");
-							$("#entry").autocomplete("disable");
 							gsettings = 0;
 							gcatsw = gcats;
 							document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
 						}
+//lgs2 following line was in "accepted"
+						$("#entry").autocomplete("disable");
 //						document.getElementById("pppaymt").style.display="none"; 
 					} else {
 						gsettings = data[0]['settings'];
@@ -1168,6 +1178,7 @@ function hashpass(ob) {
 						document.getElementById("msgbox").style.display='none';
 						document.getElementById("savesettings").disabled = false;
 						document.getElementById("mergepass").disabled = false;
+						$("#entry").autocomplete("enable");
 					}
 					document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
 					var prefixon = (gsettings & (1 << 1));
@@ -1175,7 +1186,6 @@ function hashpass(ob) {
 					$("#entry").autocomplete("flushCache");
 //					$("#entry").autocomplete("close");
 //					$("#entry").autocomplete("disable");
-					$("#entry").autocomplete("enable");
 					initprefix(prefixon);
 					document.getElementById("username").value="";
 					document.getElementById("cPassword").value="";
@@ -1213,7 +1223,6 @@ function validateuserdom(ob) {
 		if (re.test(ob.value)) {
 			alert(msg);
 			ob.value = "";
-//			openselect();
 			return false;
 		} else ob.value=ob.value.toLowerCase();
 	} else if (ob.id == "username") {
@@ -1252,10 +1261,20 @@ function checkpass(ob) {
     var lacking = "";
     var focusid;
     list: {
-	if (document.getElementById('fPassword').value.trim() == "" || hPub == "") {
+	if (document.getElementById('fPassword').value.trim() == "") {
 		lacking += "master password, ";
 		focusid = 'fPassword';
+	} else if (hPub == "") {
+		lacking += "Your master password failed our password strength test. ";
+		focusid = 'fPassword';
+		if (document.getElementById("permitnodw").checked)  lacking += "Since you have disabled the requirement for Diceware-type passphrases, your master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,<.>";
+		else lacking += "You should enter a passphrase of at least 6 words, or else override that requirement in Settings. If you run the passphrase words together, the total length should be at least 24.";
+
+		alert(lacking);
+		document.getElementById('fPassword').focus();
+		return false;
 	}
+
 	if (ob.id == "entry") break list;
 
 	if (document.getElementById('entry').value.trim() == "") {
@@ -1405,7 +1424,7 @@ function ckpassedit(ob) {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' onclick="checkpass(this);" placeholder="Enter a domain" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2" maxlength="70">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2" maxlength="70">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
