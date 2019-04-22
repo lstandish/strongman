@@ -447,7 +447,7 @@ $(function(){
 	});
 	$("#enable").click(function() {
 		if ($(this).is(":checked")) {
-			document.getElementById("matchoff").disabled = false;
+			document.getElementById("matchon").disabled = false;
 			document.getElementById("matchdel").disabled = false;
 			eraseCookie("offline");
 			document.getElementById("delaccountbut").disabled = false;
@@ -488,16 +488,16 @@ $(function(){
 		$(this).toggleClass("fa-eye");
 		$(this).toggleClass("fa-eye-slash");
 	});
-	<?=(isset($_COOKIE["matchoff"])) ? "initmatch(0);" : "initmatch(1);";?>
+	<?=(isset($_COOKIE["matchon"])) ? "initmatch(1);" : "initmatch(0);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
 	resetcats();
 //lgs2 Disable autocomplete to avoid hammering ajax before a password account is opened or created
 	$("#entry").autocomplete("disable");
 	if (getCookie("offline")) {
+		$("#entry").autocomplete("matchoff");
 		$("#entry").autocomplete("disable");
-		$("#entry").autocomplete("matchon");
-		document.getElementById("matchoff").checked = false;
-		document.getElementById("matchoff").disabled=true;
+		document.getElementById("matchon").checked = false;
+		document.getElementById("matchon").disabled=true;
 	}
 	version = is_ios();
 
@@ -536,9 +536,9 @@ function setoffline() {
 	document.getElementById("delaccountbut").disabled = true;
 	document.getElementById("mergepass").disabled = true;
 //	$("#entry").autocomplete("disable");
-	$("#entry").autocomplete("matchon");
-	document.getElementById("matchoff").checked = false;
-	document.getElementById("matchoff").disabled = true;
+	$("#entry").autocomplete("matchoff");
+	document.getElementById("matchon").checked = false;
+	document.getElementById("matchon").disabled = true;
 	document.getElementById("matchdel").checked = false;
 	document.getElementById("matchdel").disabled = true;
 }
@@ -814,11 +814,11 @@ function iosCopy(el) {
 
 function initmatch(ismatch) {
 	if (ismatch) {
-		document.getElementById("matchoff").checked=false;
+		document.getElementById("matchon").checked=true;
 //		$("#entry").val = ""; //lgs
 		$("#entry").autocomplete("matchon");
 	} else {
-		document.getElementById("matchoff").checked=true;
+		document.getElementById("matchon").checked=false;
 		$("#entry").autocomplete("matchoff");
 	}
 }
@@ -840,14 +840,14 @@ function initprefix(on) {
 }
 
 function setmatch() {
-	if (!document.getElementById("matchoff").checked) {
-		eraseCookie("matchoff");
+	if (document.getElementById("matchon").checked) {
+		setCookie("matchon","1",1000);
 		$("#entry").autocomplete("matchon");
 		var ins = document.getElementById("entry").value.trim();
 		$("#entry").val(ins);
 		$("#entry").autocomplete("trigger"); // run the completion
 	} else {
-		setCookie("matchoff","1",1000);
+		eraseCookie("matchon");
 		$("#entry").autocomplete("matchoff");
 		openselect();
 	}
@@ -1072,6 +1072,7 @@ function resetcats() {
 	document.getElementById('editcats').innerHTML = cathtml;
 	var sel = document.getElementById('dfilter');
 	$('#dfilter').empty();
+	sel.style="width:75px; font-size:.8em;";
 	var opt = document.createElement('option');
 	opt.value = -1;
 	opt.innerHTML = 'No Filter';
@@ -1133,7 +1134,7 @@ function hashpass() {
 //					var paid = (retval & (1 << 2));
 //					var warn = (retval & (1 << 3)); // exists and has changed (warn)
 //					var ob = document.getElementById("fPassword");
-					console.log(data);
+//					console.log(data);
 					if (data[0]['settings'] != "empty") {
 						gsettings = data[0]['settings'];
 						var dates = data[0]['dates'].split(',');
@@ -1189,7 +1190,6 @@ function hashpass() {
 		} else accepted = 1;
 		$("#entry").autocomplete("flushCache");
 		if (!accepted) {
-//			console.log("not accepted");
 			clearhash();
 			$("#entry").autocomplete("close");
 			$("#entry").autocomplete("disable");
@@ -1202,8 +1202,6 @@ function hashpass() {
 			gcatsw = gcats;
 			document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
 		}
-//		$("#entry").autocomplete("enable");
-//		console.log("not accepted");
 		document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
 		var prefixon = (gsettings & (1 << 1));
 		document.getElementById("prefixon").checked = prefixon;
@@ -1213,8 +1211,6 @@ function hashpass() {
 		document.getElementById("cPassword").value="";
 		setnotes("");
 		resetcats();
-//		console.log("finishing hashpass, hPub is " + hPub);
-//		document.getElementById('entry').focus();
 	}
 }
 
@@ -1287,7 +1283,7 @@ function checkpass(ob) {
 		lacking += "master password, ";
 		focusid = 'fPassword';
 	} else if (hPub == "") {
-		lacking = "Please enter an acceptable master password and click the 'Submit' button. ";
+		lacking = "Please enter an acceptable master password. Don't forget to click 'Submit'. ";
 		focusid = 'fPassword';
 //		if (document.getElementById("permitnodw").checked)  lacking += "Since you have disabled the requirement for Diceware-type passphrases, your master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,<.>";
 //		else lacking += "You should enter a passphrase of at least 6 words, or else override that requirement in Settings. If you run the passphrase words together, the total length should be at least 24.";
@@ -1369,7 +1365,7 @@ function lock() {
 	myCopy("lock","cPassword");
 }
 function openselect() {
-	if (document.getElementById("matchoff").checked) {
+	if (!document.getElementById("matchon").checked) {
 		var val = document.getElementById("entry").value;
 		var ins = (val) ? val : " ";
 		$("#entry").val(ins);
@@ -1402,7 +1398,7 @@ function ckpassedit(ob) {
 */
 </script>
 </head>
-<body style="max-width:500px;">
+<body style="max-width:520px;">
 <!-- Sidebar -->
 <div style="display:none" class="w3-container w3-card-4 w3-margin w3-leftbar w3-sand w3-hide" id="sidebar">
 <button onclick="togAccordian('sidebar');" class="w3-round-xlarge w3-right w3-blue">Close</button>
@@ -1433,11 +1429,11 @@ function ckpassedit(ob) {
 <i class="fa fa-lock w3-large" onclick="lock();" style="color:goldenrod;" title="Clear master password, site password, and clipboard" id="lockstate"></i>
 <i class="w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyemaster"></i>
 <span class="w3-row">
-<span class="w3-col s10">
+<span class="w3-col s11">
   <input class="w3-input w3-border w3-round icon-input" name="fPassword" id='fPassword' type='password' placeholder="Enter a strong passphrase" tabindex="1" onchange="clearhash();">
 </span>
-<span class="w3-col s1" style="margin: 8px 0 0 3px;">
-  <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="submitmp" onclick="hashpass();" title="Submit Master Password">Submit</button>
+<span class="w3-col s1" style="margin: 8px 0 0 0;">
+  <button class="w3-button w3-small w3-blue w3-round w3-ripple fa" style="padding:5px 5px;" id="submitmp" onclick="hashpass();" title="Submit Master Password">Submit</button>
 </span>
 </span>
   </p>
@@ -1446,8 +1442,7 @@ function ckpassedit(ob) {
 <select style='font-size: 80%;' name="dfilter" id="dfilter" onclick="openselect();">
 <option value="-1" selected>No filter</option>
 </select>
-<input class="setMatch" type="checkbox" id='matchoff' title="If checked, show all entries matching Filter. If unchecked, incrementally search entries matching Filter" name="setMatch" <?=isset($_COOKIE["matchoff"]) ? "checked" : "";?>> Search off
- &nbsp;<input class="setMatch" type="checkbox" id='matchdel' name="matchdel" title="Turn delete mode on/off"> Del
+<input class="setMatch" type="checkbox" id='matchon' title="If checked, incrementally search entries matching Filter. If unchecked, show all entries matching Filter." name="setMatch" <?=isset($_COOKIE["matchon"]) ? "checked" : "";?>>Search &nbsp;<input class="setMatch" type="checkbox" id='matchdel' name="matchdel" title="Turn delete mode on/off">Del
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
