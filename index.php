@@ -220,7 +220,6 @@ $(function(){
 		for (var i=0; i<gcatsw.length; i++) {
 			var el = document.getElementById('cc' + i);
 			if (el !== null) {
-//				if (el.value.indexOf(',') > -1) {
 				if (el.value.search(/[,<>\|\\]/) > -1) {
 					alert("The following characters are not allowed in category names:,<>|\\");
 					return;
@@ -491,11 +490,12 @@ $(function(){
 	<?=(isset($_COOKIE["matchon"])) ? "initmatch(1);" : "initmatch(0);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
 	resetcats();
-//lgs2 Disable autocomplete to avoid hammering ajax before a password account is opened or created
-	$("#entry").autocomplete("disable");
+// Disable autocomplete to avoid hammering ajax before a password account is opened or created
+//	$("#entry").autocomplete("disable");
+	autoenable(false);
 	if (getCookie("offline")) {
 		$("#entry").autocomplete("matchoff");
-		$("#entry").autocomplete("disable");
+//		$("#entry").autocomplete("disable");
 		document.getElementById("matchon").checked = false;
 		document.getElementById("matchon").disabled=true;
 	}
@@ -531,11 +531,24 @@ symb: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 var rules;
 var setOfCharacters;
 
+function autoenable(on) {
+	var x = document.getElementById("entry");
+	if (on) {
+		$("#entry").autocomplete("enable");
+		if (x.className.indexOf("w3-pale-green") == -1) {
+			x.className += " w3-pale-green";
+		}
+	} else {
+		$("#entry").autocomplete("disable");
+		x.className = x.className.replace(" w3-pale-green", "");
+	}
+}
+
 function setoffline() {
 	document.getElementById("savesettings").disabled = true;
 	document.getElementById("delaccountbut").disabled = true;
 	document.getElementById("mergepass").disabled = true;
-//	$("#entry").autocomplete("disable");
+	autoenable(false);
 	$("#entry").autocomplete("matchoff");
 	document.getElementById("matchon").checked = false;
 	document.getElementById("matchon").disabled = true;
@@ -607,7 +620,6 @@ function savepass(butob) {
 		}
 		ajaxsave(chex,1,1);
 		autoClip("Custom Password");
-//		butob.disabled=true;
 	}
 }
 function ajaxsave(cipher,checkexisting,incr) {
@@ -679,8 +691,7 @@ function ajaxsave(cipher,checkexisting,incr) {
 					}
 				} else {
 					$("#entry").autocomplete("flushCache");
-//lgs2
-					$("#entry").autocomplete("enable");
+					autoenable(true);
 					document.getElementById("savebut").disabled=true;
 				}
 			}
@@ -749,7 +760,6 @@ function ajaxsavenotes(checkexisting) {
 					alert("Secure notes were not updated. To show old notes, click in the 'Domain' field and choose your domain/username pair again.");
 				}
 			} else {
-//				showMsg("<p>Secure notes encrypted and saved to server.</p>","w3-green"); //lgs
 				alert("Secure notes encrypted and saved to server. (If you need to undo, click in the 'Secure Notes' textbox and use CTRL+z.)");
 				$("#entry").autocomplete("flushCache");
 			}
@@ -785,7 +795,7 @@ function ajaxsavecat() {
 		success: function(retval) {
 			if (retval) alert("You need to Compute or Save your password before you can change the category.");
 			else {
-				alert("Category saved.");// lgs2 need to add check for retval 1 and 
+				alert("Category saved.");// lgs2 need to add check for retval 1 and 2
 				$("#entry").autocomplete("flushCache");
 			}
 		}
@@ -926,7 +936,7 @@ function myCopy(msg,id) {
 		hPub="";
 		$("#entry").autocomplete("flushCache");
 		//lgs2
-		$("#entry").autocomplete("disable");
+		autoenable(false);
 		document.getElementById("lockstate").className="fa fa-lock w3-large";
 		if (version) {
 			if (version <10) {
@@ -1056,7 +1066,6 @@ function insertStringPseudoRandomly(generatedPassword, entropy, string) {
 }
 
 function setoptslen(opts,length) {
-//alert("opts=" + opts);
 	document.getElementById("lcase").checked = (opts & (1 << 0)); // lcase
 	document.getElementById("ucase").checked = (opts & (1 << 1)); // ucase
 	document.getElementById("num").checked = (opts & (1 << 2));
@@ -1098,7 +1107,6 @@ function resetcats() {
 }
 
 function ajaxgetsettings() {
-//	hPub = genhash(ob.value,1000);
 	return $.ajax({
 		type: 'POST',
 		url: 'ajax/ajax-json-settings.php',
@@ -1113,7 +1121,7 @@ function ajaxgetsettings() {
 function clearhash() {
 	hPub = "";
 	hPriv = "";
-	$("#entry").autocomplete("disable");
+	autoenable(false);
 }
 
 found = 0;
@@ -1151,7 +1159,8 @@ function hashpass() {
 						document.getElementById("msgbox").style.display='none';
 						document.getElementById("savesettings").disabled = false;
 						document.getElementById("mergepass").disabled = false;
-						$("#entry").autocomplete("enable");
+						autoenable(true);
+//						$("#entry").autocomplete("enable");
 						showMsg("Master password profile successfully loaded","w3-green");
 						found = 1;
 					}
@@ -1165,6 +1174,7 @@ function hashpass() {
 		}
 		var accepted;
 		if (!found) {
+			autoenable(false);
 			accepted = 0;
 //			console.log("not found");
 			var msg;
@@ -1192,7 +1202,7 @@ function hashpass() {
 		if (!accepted) {
 			clearhash();
 			$("#entry").autocomplete("close");
-			$("#entry").autocomplete("disable");
+//			$("#entry").autocomplete("disable");
 			showMsg(msg,"w3-yellow");
 			document.getElementById('fPassword').focus();
 			return;
@@ -1205,7 +1215,6 @@ function hashpass() {
 		document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
 		var prefixon = (gsettings & (1 << 1));
 		document.getElementById("prefixon").checked = prefixon;
-		$("#entry").autocomplete("flushCache");
 		initprefix(prefixon);
 		document.getElementById("username").value="";
 		document.getElementById("cPassword").value="";
@@ -1217,7 +1226,6 @@ function hashpass() {
 function genhash(myhash,num) {
 // new SHA256 instance
 	var SHA256 =  new Hashes.SHA256;
-//	var num = 5000;
 	for (var i= 0; i<num; i++) {
 		myhash = SHA256.hex(myhash);
 	}
@@ -1233,17 +1241,13 @@ function verifypp() {
 function validateuserdom(ob) {
 	var re = /[?{}|&~!()^"]+/;
 	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"";
-//	var maxlen;
-//alert("fired with " + ob.id + " " + ob.value);
 	if (ob.id == "entry") {
-//		maxlen = 150;
 		if (re.test(ob.value)) {
 			alert(msg);
 			ob.value = "";
 			return false;
 		} else ob.value=ob.value.toLowerCase();
 	} else if (ob.id == "username") {
-//		maxlen = 100;
 		if (re.test(ob.value)) {
 			alert(msg);
 			ob.value = "";
@@ -1251,30 +1255,9 @@ function validateuserdom(ob) {
 			return false;
 		}
 	}
-/*
-	if (ob.value.length > maxlen) {
-		alert("Maximum length of this field is " + manlen);
-		return false;
-	}
-*/
 	return true;
 }
 
-/*
-function validatenotescpass(ob) {
-	var maxlen;
-	if (ob.id == "notes") {
-		maxlen = 640;
-	} else {
-		maxlen = 250;
-	}
-	if (ob.value.length > maxlen) {
-		alert("Maximum length of this field is " + manlen);
-		return false;
-	} else if (ob.id == "cPassword") ob.type = "password"
-	return true;
-}
-*/
 function checkpass(ob) {
     var lacking = "";
     var focusid;
@@ -1285,8 +1268,6 @@ function checkpass(ob) {
 	} else if (hPub == "") {
 		lacking = "Please enter an acceptable master password. Don't forget to click 'Submit'. ";
 		focusid = 'fPassword';
-//		if (document.getElementById("permitnodw").checked)  lacking += "Since you have disabled the requirement for Diceware-type passphrases, your master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,<.>";
-//		else lacking += "You should enter a passphrase of at least 6 words, or else override that requirement in Settings. If you run the passphrase words together, the total length should be at least 24.";
 		alert(lacking);
 		document.getElementById('fPassword').focus();
 		return false;
@@ -1390,12 +1371,6 @@ function validateincr(ob) {
 	}
 }
 
-/*
-function ckpassedit(ob) {
-//	var changed = (ob.value != ob.getAttribute("oValue"));
-	document.getElementById("savebut").disabled = false;
-}
-*/
 </script>
 </head>
 <body style="max-width:520px;">
@@ -1446,7 +1421,7 @@ function ckpassedit(ob) {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2" maxlength="70">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2" maxlength="70">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
@@ -1535,12 +1510,11 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </div>
 </div>
 <script>
-/*
+
 fPassword.onblur = function() {
 	fPassword.type = "password";
-	hashpass(this);
 };
-*/
+
 fPassword.onfocus = function() {
 	if ($("#eyemaster").hasClass("fa-eye")) {
 		fPassword.type = "text";
