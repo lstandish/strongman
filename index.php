@@ -21,12 +21,13 @@ This file is part of Strongman.
     You should have received a copy of the GNU General Public License
     along with Strongman.  If not, see <https://www.gnu.org/licenses/>.
 */
+// TO DO: add "account loaded" global to know when an account has been loaded via ajax.
 //ini_set("display_errors",1);
 //       error_reporting(E_ALL);
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.17";
+$smversion = "1.18";
 ?>
 <!DOCTYPE html>
 <html>
@@ -453,10 +454,13 @@ $(function(){
 			if (hPub) {
 				document.getElementById("savesettings").disabled = false;
 				document.getElementById("mergepass").disabled = false;
+				autoenable(true);
 			}
+			showMsg("Online mode","w3-green");
 		} else {
 			setoffline();
 			setCookie("offline","1",1000);
+			showMsg("Offline mode","w3-yellow");
 		}
 	});
 	$("#eyemaster").click(function() {
@@ -539,6 +543,7 @@ function autoenable(on) {
 			x.className += " w3-pale-green";
 		}
 	} else {
+//		$("#entry").autocomplete("flushCache");
 		$("#entry").autocomplete("disable");
 		x.className = x.className.replace(" w3-pale-green", "");
 	}
@@ -1346,7 +1351,7 @@ function lock() {
 	myCopy("lock","cPassword");
 }
 function openselect() {
-	if (!document.getElementById("matchon").checked) {
+	if (!document.getElementById("matchon").checked && document.getElementById("enable").checked) {
 		var val = document.getElementById("entry").value;
 		var ins = (val) ? val : " ";
 		$("#entry").val(ins);
