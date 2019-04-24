@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.18";
+$smversion = "1.19";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1111,25 +1111,35 @@ function resetcats() {
 	sel.selectedIndex = "0";
 }
 
-function ajaxgetsettings() {
-	return $.ajax({
-		type: 'POST',
-		url: 'ajax/ajax-json-settings.php',
-		cache: false,
-		async: true,
-		dataType: 'json',
-		data: { hPass: JSON.stringify(hPub) },
-		timeout: 1000
-	});
-}
-
 function clearhash() {
 	hPub = "";
 	hPriv = "";
 	autoenable(false);
 }
 
-found = 0;
+function regexpass (msg) {
+	var ob = document.getElementById("fPassword");
+//						var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/; // no forced special chars
+	var re=/^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
+	var dw=/^\s*[a-zA-Z]+(?:(-| +)[a-zA-Z]+){5,}\S*?\s*$/;
+	var dwnosp=/^\s*[a-zA-Z]{40,}\S*?\s*$/;
+	var accepted = 0;
+	var fail = " provided does not pass our strength test.</h3>";
+//	var msg = "";
+	if (!dw.test(ob.value) && !dwnosp.test(ob.value)) {
+		if (document.getElementById("permitnodw").checked) {
+			if (document.getElementById("enable").checked) msg += "<h4>Non-Diceware passwords permitted via settings override (not recommended)</h4>";
+			if (re.test(ob.value)) {
+				accepted = 1;
+				if (document.getElementById("enable").checked) msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
+			} else 	msg += "<h3>The password" + fail +"<p>A non-Diceware master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,\<.\>.</p><p>Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
+		} else if (document.getElementById("enable").checked) msg += "<h3>The Diceware passphrase" + fail + "<p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>An acceptable Diceware passphrase consists of 6+ random words. If you run the words together, the total length should be at least 24.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). The requirement for a Diceware passphrase can be overridden in Strongman settings.</p>";
+	} else {
+		if (document.getElementById("enable").checked) msg += "<p>It looks like you chose a 6+ word passphrase. We hope this is a Diceware type passphrase (generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>) and not a sentence or word combination you thought up. If you invented this passphrase <strong>yourself</strong>, it is probably NOT secure.";
+		accepted = 1;
+	}
+	return [accepted, msg];
+}
 
 function hashpass() {
 	var ob = document.getElementById("fPassword");
@@ -1137,18 +1147,49 @@ function hashpass() {
 //		hPub = genhash(ob.value + "T=|JkDp[)97oS-",1000);
 		hPub = genhash(ob.value,1000);
 		hPriv = genhash(ob.value,5000);
-//		console.log("resetting hPub to " + hPub);
 		if (document.getElementById("enable").checked) {
-			found = 0;
-			$.when(ajaxgetsettings()).then(
-				function successHandler(data) {
+			$.ajax({
+				type: 'POST',
+				url: 'ajax/ajax-json-settings.php',
+				cache: false,
+				async: true,
+				dataType: 'json',
+
+				data: { hPass: JSON.stringify(hPub) },
+				timeout: 1000,
+				error: function(x, t, m) {
+					alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
+					document.getElementById("enable").checked = false;
+					setoffline();
+				},
+				success: function(data) {
 //					var venc = (retval & (1 << 0)); // aes
 //					var aes = (retval & (1 << 1)); // aes
 //					var paid = (retval & (1 << 2));
 //					var warn = (retval & (1 << 3)); // exists and has changed (warn)
-//					var ob = document.getElementById("fPassword");
-//					console.log(data);
-					if (data[0]['settings'] != "empty") {
+
+					if (data[0]['settings'] == "empty") {
+						var msg = "Warning: No stored password information found for this master password. If this is the first use of this master password, you can ignore this warning.  Otherwise, this master password is incorrect, and calculated passwords will NOT work.";
+						var accepted;
+						autoenable(false);
+						var aresult = regexpass(msg);
+						if (!aresult[0]) {
+							clearhash();
+							$("#entry").autocomplete("flushCache");
+							$("#entry").autocomplete("close");
+				//			$("#entry").autocomplete("disable");
+							showMsg(aresult[1],"w3-yellow");
+							document.getElementById('fPassword').focus();
+							return;
+						} else {
+							showMsg(aresult[1],"w3-yellow");
+							$("#entry").autocomplete("disable");
+							gsettings = 0;
+							gcatsw = gcats;
+							document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
+						}
+//						document.getElementById("pppaymt").style.display="none"; 
+					} else {
 						gsettings = data[0]['settings'];
 						var dates = data[0]['dates'].split(',');
 						if (data[0]['custcats'] !== undefined) {
@@ -1161,73 +1202,63 @@ function hashpass() {
 						}
 						var startdate = moment(dates[0]*1000).format('L');
 						document.getElementById("accountdata").innerHTML="Free account, started " + startdate;
+//						$("#entry").autocomplete("enable");
 						document.getElementById("msgbox").style.display='none';
 						document.getElementById("savesettings").disabled = false;
 						document.getElementById("mergepass").disabled = false;
 						autoenable(true);
 //						$("#entry").autocomplete("enable");
 						showMsg("Master password profile successfully loaded","w3-green");
-						found = 1;
 					}
-				},
-				function errorHandler(){
-					alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
-					document.getElementById("enable").checked = false;
-					setoffline();
+					document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
+					var prefixon = (gsettings & (1 << 1));
+					document.getElementById("prefixon").checked = prefixon;
+					$("#entry").autocomplete("flushCache");
+//					$("#entry").autocomplete("close");
+//					$("#entry").autocomplete("disable");
+					$("#entry").autocomplete("enable");
+					initprefix(prefixon);
+					document.getElementById("username").value="";
+					document.getElementById("cPassword").value="";
+					setnotes("");
+					resetcats();
 				}
-			)
-		}
-		var accepted;
-		if (!found) {
+			});
+		} else {
 			autoenable(false);
-			accepted = 0;
-//			console.log("not found");
-			var msg;
-			if (!document.getElementById("enable").checked) msg = "Offline mode.";
-			else msg = "Warning: No stored password information found for this master password. If this is the first use of this master password, you can ignore this warning.  Otherwise, this master password is incorrect, and calculated passwords will NOT work.";
-//				var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/; // no forced special chars
-			var re=/^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
-			var dw=/^\s*[a-zA-Z]+(?:(-| +)[a-zA-Z]+){5,}\S*?\s*$/;
-			var dwnosp=/^\s*[a-zA-Z]{24,}\S*?\s*$/;
-			var fail = " provided does not pass our strength test.</h3>";
-			if (!dw.test(ob.value) && !dwnosp.test(ob.value)) {
-				if (document.getElementById("permitnodw").checked) {
-					if (document.getElementById("enable").checked) msg += "<h4>Non-Diceware passwords permitted via settings override (not recommended)</h4>";
-					if (re.test(ob.value)) {
-						accepted = 1;
-						if (document.getElementById("enable").checked) msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
-					} else 	msg += "<h3>The password" + fail +"<p>A non-Diceware master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,\<.\>.</p><p>Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
-				} else if (document.getElementById("enable").checked) msg += "<h3>The Diceware passphrase" + fail + "<p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>An acceptable Diceware passphrase consists of 6+ random words. If you run the words together, the total length should be at least 24.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). The requirement for a Diceware passphrase can be overridden in Strongman settings.</p>";
+			var accepted;
+			var msg = "Offline mode.";
+//However, just having these characters doesn't make a password random. People avoid random mixed-character passwords because they are <strong>very</strong> hard to memorize.</p><p>So what we <strong>recommend</strong> is a 6-7 word 'diceware' passphrase, which, while random, is much easier to memorize. It is unbreakable even by attackers with huge resources. <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Read more</a>. A good online Diceware passphrase generator is <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Of course, a truly random 9+ character password might not contain, for example, a digit. So, you can override the password strength tester by checking 'Permit weak master passwords' in <strong>Settings and Tools</strong> near the bottom of Strongman, then try again.</p>";
+			var aresult = regexpass(msg);
+			if (!aresult[0]) {
+				clearhash();
+				$("#entry").autocomplete("flushCache");
+				$("#entry").autocomplete("close");
+			//			$("#entry").autocomplete("disable");
+				showMsg(aresult[1],"w3-yellow");
+				document.getElementById('fPassword').focus();
+				return;
 			} else {
-				if (document.getElementById("enable").checked) msg += "<p>It looks like you chose a 6+ word passphrase. We hope this is a Diceware type passphrase (generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>) and not a sentence or word combination you thought up. If you invented this passphrase <strong>yourself</strong>, it is probably NOT secure.";
-				accepted = 1;
+				showMsg(aresult[1],"w3-yellow");
+				$("#entry").autocomplete("disable");
+				gsettings = 0;
+				gcatsw = gcats;
+				document.getElementById("accountdata").innerHTML="Offline mode.";
+				document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
+				var prefixon = (gsettings & (1 << 1));
+				document.getElementById("prefixon").checked = prefixon;
+				initprefix(prefixon);
+				document.getElementById("username").value="";
+				document.getElementById("cPassword").value="";
+				setnotes("");
+				resetcats();
 			}
-		} else accepted = 1;
-		$("#entry").autocomplete("flushCache");
-		if (!accepted) {
-			clearhash();
-			$("#entry").autocomplete("close");
-//			$("#entry").autocomplete("disable");
-			showMsg(msg,"w3-yellow");
-			document.getElementById('fPassword').focus();
-			return;
-		} else if (!found) {
-			showMsg(msg,"w3-green");
-			gsettings = 0;
-			gcatsw = gcats;
-			document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
 		}
-		document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
-		var prefixon = (gsettings & (1 << 1));
-		document.getElementById("prefixon").checked = prefixon;
-		initprefix(prefixon);
-		document.getElementById("username").value="";
-		document.getElementById("cPassword").value="";
-		setnotes("");
-		resetcats();
 	}
 }
 
+
+//-------------------------------------------
 function genhash(myhash,num) {
 // new SHA256 instance
 	var SHA256 =  new Hashes.SHA256;
