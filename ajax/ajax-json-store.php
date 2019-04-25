@@ -99,7 +99,7 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 			if ($check) {
 				if ($warn) $retval += 8;
 				header("Content-Type: text/json; charset=UTF-8;");
-				echo json_encode( $retval );
+				echo json_encode( array($retval,$start_date) );
 				return;
 			} elseif ($changed) {
 				if (isset($config_data[$domain][$user])) {
@@ -126,5 +126,5 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 //	file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt",print_r($new_content,true) . "\n"); //,FILE_APPEND);
 	}
     header("Content-Type: text/json; charset=UTF-8;");
-    echo json_encode( $retval );
+    echo json_encode( array($retval,$start_date) );
 ?>

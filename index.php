@@ -58,6 +58,10 @@ gsettings = 2;
 gcats = [ "Uncategorized","Banking","E-commerce","Services","Social Media","Tools/Admin","Forums","Government","Unused","Unused" ];
 gcatsw = gcats;
 
+//if (!Date.now) {
+//	Date.now = function() { return new Date().getTime(); }
+//}
+
 $(function(){
 	$("#entry").autocomplete({
 		ajax: {
@@ -672,7 +676,8 @@ function ajaxsave(cipher,checkexisting,incr) {
 			document.getElementById("enable").checked = false;
 			setoffline();
 		},
-		success: function(retval) {
+		success: function(ret) {
+			var retval = ret[0];
 			var venc = (retval & (1 << 0)); // aes
 			var aes = (retval & (1 << 1)); // aes
 			var paid = (retval & (1 << 2));
@@ -695,9 +700,12 @@ function ajaxsave(cipher,checkexisting,incr) {
 						}
 					}
 				} else {
+					
 					$("#entry").autocomplete("flushCache");
 					autoenable(true);
 					document.getElementById("savebut").disabled=true;
+console.log(ret);
+					document.getElementById("accountdata").innerHTML="Free account, started " + moment(ret[1]*1000).format('L');
 				}
 			}
 /*			} else {
@@ -960,7 +968,7 @@ function myCopy(msg,id) {
 		document.getElementById("username").value="";
 		document.getElementById("entry").value="";
 		document.getElementById("categ").value="0";
-		document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
+		document.getElementById("accountdata").innerHTML="(Compute or Save a password in order to view account information.)";
 		document.getElementById("editcats").innerHTML="<em>You need to have entered a master password and generated at least one site password to edit category names.</em>";
 		document.getElementById("savesettings").disabled = true;
 		document.getElementById("mergepass").disabled = true;
@@ -1119,13 +1127,12 @@ function clearhash() {
 
 function regexpass (msg) {
 	var ob = document.getElementById("fPassword");
-//						var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/; // no forced special chars
+//	var re=/^.*(?=.{9,})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/; // no forced special chars
 	var re=/^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,<.>]){1})(?=.*\d)((?=.*[a-z]){1})((?=.*[A-Z]){1}).*$/;
 	var dw=/^\s*[a-zA-Z]+(?:(-| +)[a-zA-Z]+){5,}\S*?\s*$/;
 	var dwnosp=/^\s*[a-zA-Z]{40,}\S*?\s*$/;
 	var accepted = 0;
 	var fail = " provided does not pass our strength test.</h3>";
-//	var msg = "";
 	if (!dw.test(ob.value) && !dwnosp.test(ob.value)) {
 		if (document.getElementById("permitnodw").checked) {
 			if (document.getElementById("enable").checked) msg += "<h4>Non-Diceware passwords permitted via settings override (not recommended)</h4>";
@@ -1154,7 +1161,6 @@ function hashpass() {
 				cache: false,
 				async: true,
 				dataType: 'json',
-
 				data: { hPass: JSON.stringify(hPub) },
 				timeout: 1000,
 				error: function(x, t, m) {
@@ -1167,26 +1173,24 @@ function hashpass() {
 //					var aes = (retval & (1 << 1)); // aes
 //					var paid = (retval & (1 << 2));
 //					var warn = (retval & (1 << 3)); // exists and has changed (warn)
-
+					$("#entry").autocomplete("flushCache");
 					if (data[0]['settings'] == "empty") {
 						var msg = "Warning: No stored password information found for this master password. If this is the first use of this master password, you can ignore this warning.  Otherwise, this master password is incorrect, and calculated passwords will NOT work.";
 						var accepted;
+						document.getElementById("accountdata").innerHTML="(Compute or save a password in order to view account information.)";
 						autoenable(false);
 						var aresult = regexpass(msg);
+						$("#entry").autocomplete("close");
+						$("#entry").autocomplete("disable");
 						if (!aresult[0]) {
 							clearhash();
-							$("#entry").autocomplete("flushCache");
-							$("#entry").autocomplete("close");
-				//			$("#entry").autocomplete("disable");
 							showMsg(aresult[1],"w3-yellow");
 							document.getElementById('fPassword').focus();
 							return;
 						} else {
 							showMsg(aresult[1],"w3-yellow");
-							$("#entry").autocomplete("disable");
 							gsettings = 0;
 							gcatsw = gcats;
-							document.getElementById("accountdata").innerHTML="(You must enter and have used a master password in order to view account information.)";
 						}
 //						document.getElementById("pppaymt").style.display="none"; 
 					} else {
@@ -1197,26 +1201,18 @@ function hashpass() {
 						} else gcatsw = gcats;
 						var ainfo="";
 						var asum="";
-						if (!Date.now) {
-							Date.now = function() { return new Date().getTime(); }
-						}
 						var startdate = moment(dates[0]*1000).format('L');
 						document.getElementById("accountdata").innerHTML="Free account, started " + startdate;
-//						$("#entry").autocomplete("enable");
 						document.getElementById("msgbox").style.display='none';
 						document.getElementById("savesettings").disabled = false;
 						document.getElementById("mergepass").disabled = false;
 						autoenable(true);
-//						$("#entry").autocomplete("enable");
+						$("#entry").autocomplete("enable");
 						showMsg("Master password profile successfully loaded","w3-green");
 					}
 					document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
 					var prefixon = (gsettings & (1 << 1));
 					document.getElementById("prefixon").checked = prefixon;
-					$("#entry").autocomplete("flushCache");
-//					$("#entry").autocomplete("close");
-//					$("#entry").autocomplete("disable");
-					$("#entry").autocomplete("enable");
 					initprefix(prefixon);
 					document.getElementById("username").value="";
 					document.getElementById("cPassword").value="";
@@ -1228,19 +1224,18 @@ function hashpass() {
 			autoenable(false);
 			var accepted;
 			var msg = "Offline mode.";
-//However, just having these characters doesn't make a password random. People avoid random mixed-character passwords because they are <strong>very</strong> hard to memorize.</p><p>So what we <strong>recommend</strong> is a 6-7 word 'diceware' passphrase, which, while random, is much easier to memorize. It is unbreakable even by attackers with huge resources. <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Read more</a>. A good online Diceware passphrase generator is <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Of course, a truly random 9+ character password might not contain, for example, a digit. So, you can override the password strength tester by checking 'Permit weak master passwords' in <strong>Settings and Tools</strong> near the bottom of Strongman, then try again.</p>";
 			var aresult = regexpass(msg);
+			$("#entry").autocomplete("flushCache");
+			$("#entry").autocomplete("disable");
 			if (!aresult[0]) {
 				clearhash();
-				$("#entry").autocomplete("flushCache");
-				$("#entry").autocomplete("close");
-			//			$("#entry").autocomplete("disable");
+//				$("#entry").autocomplete("close");
+//				$("#entry").autocomplete("disable");
 				showMsg(aresult[1],"w3-yellow");
 				document.getElementById('fPassword').focus();
 				return;
 			} else {
 				showMsg(aresult[1],"w3-yellow");
-				$("#entry").autocomplete("disable");
 				gsettings = 0;
 				gcatsw = gcats;
 				document.getElementById("accountdata").innerHTML="Offline mode.";
@@ -1257,8 +1252,6 @@ function hashpass() {
 	}
 }
 
-
-//-------------------------------------------
 function genhash(myhash,num) {
 // new SHA256 instance
 	var SHA256 =  new Hashes.SHA256;
@@ -1542,7 +1535,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <div id="myaccount" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">
   <i onclick="javascript:togAccordian('myaccount');" class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;"></i>
 <label><strong>Account Information</strong><br>
-<div id="accountdata">(You must enter and have used a master password in order to view account information.)</div>
+<div id="accountdata">(Compute or save a password in order to view account information.)</div>
 </div>
 </div>
 <script>
