@@ -59,8 +59,7 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	);
 	$config_data = array();
 	if (!$check) {
-		$date = new DateTime("@$start_date");
-		file_put_contents ( "$datapath/!newaccount.log",print_r($date->format('U = Y-m-d H:i:s'),true) . "\n",FILE_APPEND);
+		include "new_account.php";
 	}
     }
 	$aes_expire = -1; // permanent free account
