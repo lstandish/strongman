@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.20";
+$smversion = "1.21";
 ?>
 <!DOCTYPE html>
 <html>
@@ -57,6 +57,8 @@ hPriv="";
 gsettings = 2;
 gcats = [ "Uncategorized","Banking","E-commerce","Services","Social Media","Tools/Admin","Forums","Government","Unused","Unused" ];
 gcatsw = gcats;
+t="";
+secs=0;
 
 //if (!Date.now) {
 //	Date.now = function() { return new Date().getTime(); }
@@ -495,6 +497,20 @@ $(function(){
 		$(this).toggleClass("fa-eye");
 		$(this).toggleClass("fa-eye-slash");
 	});
+	$("#saveautoclear").click(function() {
+		if ($("#autoclear").is(":checked")) {
+			if ($("#autosecs").val() < 30 || $("#autosecs").val() > 9999) {
+					alert("Auto clear seconds must be between 60 and 9999.");
+					return;
+			}
+			secs = $("#autosecs").val();
+			setCookie("autoclear",secs,1000);
+//			alert("setting cookie to " + secs);
+		} else {
+			secs = 0;
+			eraseCookie("autoclear");
+		}
+	});
 	<?=(isset($_COOKIE["matchon"])) ? "initmatch(1);" : "initmatch(0);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
 	resetcats();
@@ -524,7 +540,18 @@ $(function(){
 		}
 	}
 */
-    });
+	// 0 = disable
+    window.onmousemove = resetTimer; // catches mouse movements
+    window.onmousedown = resetTimer; // catches mouse movements
+    window.onclick = resetTimer;     // catches mouse clicks
+    window.onscroll = resetTimer;    // catches scrolling
+    window.onkeypress = resetTimer;  //catches keyboard actions
+	<?php if (isset($_COOKIE["autoclear"])) { ?>
+		document.getElementById("autoclear").checked = true;
+		secs = getCookie('autoclear');
+		document.getElementById("autosecs").value = secs;
+	<?php } ?>
+});
 
 //window.onload = function() {
 //    document.getElementById('myreset').onclick = clearform;
@@ -538,6 +565,15 @@ symb: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 };
 var rules;
 var setOfCharacters;
+
+function resetTimer() {
+    clearTimeout(t);
+	if (secs>0) {
+    t = setTimeout(lock, secs*1000);  // time is in milliseconds (1000 is 1 second) 1800000
+//    t= setTimeout(reload, 300000);  // time is in milliseconds (1000 is 1 second)
+	}
+}
+
 
 function autoenable(on) {
 	var x = document.getElementById("entry");
@@ -606,7 +642,7 @@ function hexToBytes(hex) {
 function savepass(butob) {
 	if (checkpass(butob)) {
 		if (!document.getElementById("enable").checked) {
-			alert("You can't save or generate custom passwords in offline mode. To try for an Internet connection, tic the 'Online' checkbox");
+			alert("You can't save custom passwords in offline mode. To try for an Internet connection, tic the 'Online' checkbox");
 			return;
 		}
 		var pass = document.getElementById("cPassword").value;
@@ -704,7 +740,6 @@ function ajaxsave(cipher,checkexisting,incr) {
 					$("#entry").autocomplete("flushCache");
 					autoenable(true);
 					document.getElementById("savebut").disabled=true;
-console.log(ret);
 					document.getElementById("accountdata").innerHTML="Free account, started " + moment(ret[1]*1000).format('L');
 				}
 			}
@@ -1450,7 +1485,7 @@ function validateincr(ob) {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" onchange="document.getElementById('username').value = '';" tabindex="2" maxlength="70">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" tabindex="2" maxlength="70">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
@@ -1527,7 +1562,12 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </p>
 <button id="delaccountbut" class="w3-button w3-blue w3-small w3-round">Delete</button>
 <p>
-<label><strong>Security</label></strong><br>
+<label><strong>Master Password Auto-Clear</label></strong><br>
+<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999"> secs inactivity<br>
+<button id="saveautoclear" class="w3-button w3-blue w3-small w3-round">Save</button>
+</p>
+<p>
+<label><strong>Master Password Validation</label></strong><br>
 <input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords (Probably insecure, not recommended.)
 </p>
 </div><br>
