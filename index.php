@@ -500,16 +500,16 @@ $(function(){
 	$("#saveautoclear").click(function() {
 		if ($("#autoclear").is(":checked")) {
 			if ($("#autosecs").val() < 30 || $("#autosecs").val() > 9999) {
-					alert("Auto clear seconds must be between 60 and 9999.");
-					return;
+				alert("Autoclear seconds must be between 60 and 9999.");
+				return;
 			}
 			secs = $("#autosecs").val();
 			setCookie("autoclear",secs,1000);
-//			alert("setting cookie to " + secs);
 		} else {
 			secs = 0;
 			eraseCookie("autoclear");
 		}
+		alert("Master password autoclear setting saved to cookie.");
 	});
 	<?=(isset($_COOKIE["matchon"])) ? "initmatch(1);" : "initmatch(0);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
@@ -1563,7 +1563,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <button id="delaccountbut" class="w3-button w3-blue w3-small w3-round">Delete</button>
 <p>
 <label><strong>Master Password Auto-Clear</label></strong><br>
-<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999"> secs inactivity<br>
+<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999"> secs inactivity.<br>
 <button id="saveautoclear" class="w3-button w3-blue w3-small w3-round">Save</button>
 </p>
 <p>
