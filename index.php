@@ -1567,7 +1567,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <p>
 <label><strong>Master Password Auto-Clear</label></strong><br>
 <input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999"> secs inactivity.<br>
-<button id="saveautoclear" class="w3-button w3-blue w3-small w3-round">Save</button>
+<button id="saveautoclear" class="w3-button w3-blue w3-small w3-round">Save Autoclear Setting</button>
 </p>
 <p>
 <label><strong>Master Password Validation</label></strong><br>
