@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.21";
+$smversion = "1.22";
 ?>
 <!DOCTYPE html>
 <html>
@@ -960,9 +960,9 @@ function myCopy(msg,id) {
 // id is always cPassword except when copying domain (entry) or username
 	var copyText = document.getElementById(id);
 	if (msg != "lock") {
-		if ((id == "cPassword" || id == "username" || id == "entry") && !checkpass(copyText)) {
-			return;
-		}
+//		if ((id == "cPassword" || id == "username" || id == "entry") && !checkpass(copyText)) {
+//			return;
+//		}
 		if (version) {
 			if (version < 10) {
 				if (msg) showMsg("Old IOS version: manually copy password to clipboard.","w3-yellow");
@@ -970,10 +970,13 @@ function myCopy(msg,id) {
 				iosCopy(copyText);
 			}
 		} else {
+			if (id == "entry") copyText.value = copyText.value.trim();
 			copyText.select();
 			document.execCommand("copy");
 			if (msg) {
-				var color = ((id != "cPassword") || (msg == "Custom Password")) ? "w3-green" : "w3-blue";
+				var color;
+				if (msg == "Password") color = "w3-grey";
+				else color = (id != "cPassword" || msg == "Custom Password") ? "w3-green" : "w3-blue";
 				showMsg(msg + " Copied to Clipboard",color);
 			}
 		}
