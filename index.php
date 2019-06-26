@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.24";
+$smversion = "1.25";
 ?>
 <!DOCTYPE html>
 <html>
@@ -213,9 +213,6 @@ $(function(){
 	});
 	$('.setMatch').click(function() {
 		setmatch();
-	});
-	$("#permitnodw").click(function() {
-		setnodw();
 	});
 	$("#prefixon").click(function() {
 		initprefix(document.getElementById("prefixon").checked);
@@ -497,9 +494,8 @@ $(function(){
 		$(this).toggleClass("fa-eye");
 		$(this).toggleClass("fa-eye-slash");
 	});
-	$("#autoclear").click(function() {
+	$("#savegeneral").click(function() {
 		if ($("#autoclear").is(":checked")) {
-			$("#autosecs").attr("disabled",false);
 			if ($("#autosecs").val() < 30 || $("#autosecs").val() > 9999) {
 				alert("Autoclear seconds must be between 60 and 9999.");
 				return;
@@ -507,11 +503,29 @@ $(function(){
 			secs = $("#autosecs").val();
 			setCookie("autoclear",secs,1000);
 		} else {
-			$("#autosecs").attr("disabled",true);
 			secs = 0;
 			eraseCookie("autoclear");
 		}
-		alert("Master password autoclear setting saved to cookie.");
+		if (!$("#permitnodw").is(":checked")) {
+			eraseCookie("permitnodw");
+		} else {
+			setCookie("permitnodw","1",1000);
+		}
+		alert("General Settings saved via cookies.");
+	});
+	$("#permitnodw").click(function() {
+		if ($("#permitnodw").is(":checked")) {
+			if (!confirm("Are you sure you want to allow non-Diceware master passwords? Note that anything less than a (pseudo)random 9-character password of mixed characters or 6+ word 'Diceware' type passphrase is INSECURE and could lead to your account being hacked!")) {
+				$("#permitnodw").prop("checked",false);
+			}
+		}
+	});
+	$("#autoclear").click(function() {
+		if ($("#autoclear").is(":checked")) {
+			$("#autosecs").attr("disabled",false);
+		} else {
+			$("#autosecs").attr("disabled",true);
+		}
 	});
 	<?=(isset($_COOKIE["matchon"])) ? "initmatch(1);" : "initmatch(0);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
@@ -915,14 +929,6 @@ function setmatch() {
 	document.getElementById("msgbox").style.display='none';
 	if (document.getElementById('fPassword').value.trim()) {
 		document.getElementById('entry').focus();
-	}
-}
-function setnodw() {
-	if (!document.getElementById("permitnodw").checked) {
-		eraseCookie("permitnodw");
-	} else if (confirm("Are you sure you want to allow non-Diceware master passwords? Note that anything less than a (pseudo)random 9-character password of mixed characters or 6+ word 'Diceware' type passphrase is INSECURE and could lead to your account being hacked!"))
-	{
-		setCookie("permitnodw","1",1000);
 	}
 }
 
@@ -1549,6 +1555,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999" disabled> secs inactivity.<br>
 <input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords (Probably insecure, not recommended.)
 </p>
+<button id="savegeneral" class="w3-button w3-blue w3-small w3-round">Save General Settings</button>
 <p>
 <label><strong>Account Settings</label></strong><br>
 <input type="checkbox" id="manualcopy" name="manualcopy" value="1"> Do not automatically copy passwords to clipboard<br>
