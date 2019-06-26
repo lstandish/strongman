@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.23";
+$smversion = "1.24";
 ?>
 <!DOCTYPE html>
 <html>
@@ -497,8 +497,9 @@ $(function(){
 		$(this).toggleClass("fa-eye");
 		$(this).toggleClass("fa-eye-slash");
 	});
-	$("#saveautoclear").click(function() {
+	$("#autoclear").click(function() {
 		if ($("#autoclear").is(":checked")) {
+			$("#autosecs").attr("disabled",false);
 			if ($("#autosecs").val() < 30 || $("#autosecs").val() > 9999) {
 				alert("Autoclear seconds must be between 60 and 9999.");
 				return;
@@ -506,6 +507,7 @@ $(function(){
 			secs = $("#autosecs").val();
 			setCookie("autoclear",secs,1000);
 		} else {
+			$("#autosecs").attr("disabled",true);
 			secs = 0;
 			eraseCookie("autoclear");
 		}
@@ -550,6 +552,7 @@ $(function(){
 		document.getElementById("autoclear").checked = true;
 		secs = getCookie('autoclear');
 		document.getElementById("autosecs").value = secs;
+		document.getElementById("autosecs").disabled = false;
 	<?php } ?>
 });
 
@@ -928,7 +931,7 @@ function help(id) {
 	if (id == 'filter') {
 		msg = "<p><strong>Search</strong> (incremental search): When checked, shows domain-username entries matching the letters you type. When unchecked, the dropdown list shows all domain-username password entries in your account. In either case, results are limited to entries matching <strong>filter</strong>. Note that there is a relevant setting (see Settings and Tools/Settings): 'Domain incremental search matches from beginning'</p><p><strong>Delete</strong> causes the selected entry to be removed from the server.</p><p><strong>Refresh</strong> (<i class='fa fa-refresh'></i>) updates the domain-username information from the server. This is useful when sharing an account with co-workers.";
 	} else if (id == 'password') {
-		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you invent to make it easy to remember.</p><p>Since memorizing a minimum 9 character random password is very difficult, we instead recommend Diceware passphrases. They are extremely secure, yet also easy to memorize. Read more about Diceware <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>here</a>. Diceware passphrases can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Strongman now <strong>requires</strong> a 6+ word master passphrase, unless overridden by a setting (see Settings and Tools/Master Password Validation at the bottom of the app).</p>";
+		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you invent to make it easy to remember.</p><p>Since memorizing a minimum 9 character random password is very difficult, we instead recommend Diceware passphrases. They are extremely secure, yet also easy to memorize. Read more about Diceware <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>here</a>. Diceware passphrases can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Strongman now <strong>requires</strong> a 6+ word master passphrase, unless overridden by a setting (see 'Settings and Tools/General Settings/Permit non-Diceware master passwords' at the bottom of the app).</p>";
 	} else if (id == 'passtype') {
 		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button).</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password (see below).</p><p>Computed passwords are <strong>not</strong> stored on the server; they are calculated by your browser.</p>If you want to use your own password or modify a computed password, click the edit button, or simply click into the Password field and make your changes. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
 	} else if (id == 'mergepass') {
@@ -1173,12 +1176,12 @@ function regexpass (msg) {
 	var fail = " provided does not pass our strength test.</h3>";
 	if (!dw.test(ob.value) && !dwnosp.test(ob.value)) {
 		if (document.getElementById("permitnodw").checked) {
-			if (document.getElementById("enable").checked) msg += "<h4>Non-Diceware passwords permitted via settings override (not recommended)</h4>";
+			if (document.getElementById("enable").checked) msg += "<h4>Non-Diceware passwords permitted via General Settings (not recommended)</h4>";
 			if (re.test(ob.value)) {
 				accepted = 1;
 				if (document.getElementById("enable").checked) msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
 			} else 	msg += "<h3>The password" + fail +"<p>A non-Diceware master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,\<.\>.</p><p>Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
-		} else if (document.getElementById("enable").checked) msg += "<h3>The Diceware passphrase" + fail + "<p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>An acceptable Diceware passphrase consists of 6+ random words. If you run the words together, the total length should be at least 24.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). The requirement for a Diceware passphrase can be overridden in Strongman settings.</p>";
+		} else if (document.getElementById("enable").checked) msg += "<h3>The Diceware passphrase" + fail + "<p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>An acceptable Diceware passphrase consists of 6+ random words. If you run the words together, the total length should be at least 24.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). The requirement for a Diceware passphrase can be overridden in Strongman General Settings.</p>";
 	} else {
 		if (document.getElementById("enable").checked) msg += "<p>It looks like you chose a 6+ word passphrase. We hope this is a Diceware type passphrase (generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>) and not a sentence or word combination you thought up. If you invented this passphrase <strong>yourself</strong>, it is probably NOT secure.";
 		accepted = 1;
@@ -1542,16 +1545,21 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <div id="settingsdiv" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">
   <i onclick="javascript:togAccordian('settingsdiv');" class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;"></i>
 <p>
-<label><strong>Settings</label></strong><br>
-<input type="checkbox" id="manualcopy" name="manualcopy" value="1"> Do not automatically copy passwords to clipboard<br>
-<input type="checkbox" id="prefixon" name="prefixon" value="1" checked> Domain incremental search matches from beginning
+<label><strong>General Settings</label></strong><br>
+<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999" disabled> secs inactivity.<br>
+<input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords (Probably insecure, not recommended.)
 </p>
 <p>
-<label><strong>Customize Category Names</label></strong><br>
+<label><strong>Account Settings</label></strong><br>
+<input type="checkbox" id="manualcopy" name="manualcopy" value="1"> Do not automatically copy passwords to clipboard<br>
+<input type="checkbox" id="prefixon" name="prefixon" value="1" checked> Domain incremental search matches from beginning<br>
+</p>
+<p>
+<label>Customize Category Names</label><br>
 <span id='editcats'> <em>You need to have entered a master password and generated at least one site password to edit category names.</em>
 </span>
 </p>
-<button id="savesettings" class="w3-button w3-blue w3-small w3-round" title="Settings can only be saved after master password is entered." disabled>Save Settings</button>
+<button id="savesettings" class="w3-button w3-blue w3-small w3-round" title="Account settings can only be saved after master password is entered." disabled>Save Account Settings</button>
 <p>
 <label><strong>Import Passwords from Another Strongman Account</label></strong>
  <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick='help("mergepass");'></i>
@@ -1564,15 +1572,6 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <input class="w3-input w3-border w3-round" type="text" id="delaccountmp" name="delaccount" placeholder="Master password of Strongman account to REMOVE.">
 </p>
 <button id="delaccountbut" class="w3-button w3-blue w3-small w3-round">Delete</button>
-<p>
-<label><strong>Master Password Auto-Clear</label></strong><br>
-<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999"> secs inactivity.<br>
-<button id="saveautoclear" class="w3-button w3-blue w3-small w3-round">Save Autoclear Setting</button>
-</p>
-<p>
-<label><strong>Master Password Validation</label></strong><br>
-<input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords (Probably insecure, not recommended.)
-</p>
 </div><br>
 <a href="javascript:togAccordian('myaccount');">My Account</a>
 <div id="myaccount" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">
