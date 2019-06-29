@@ -84,8 +84,8 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 				$cont = ($awork[0] > 0 and $awork[0] < 16);
 				if ($cont) $cont = ($awork[1] > 3 and $awork[1] < 35);
 				if ($cont) $cont = ($awork[2] > -1 and $awork[2] < 100);
-				if ($cont) $cont = (preg_match('/[?{}|&~!()^"]/',$awork[3]) === 0 and strlen($awork[3]<1280));
-				if ($cont and sizeof($awork)>5) $cont = (preg_match('/[?{}|&~!()^"]/',$awork[5]) === 0 and strlen($awork[5]<400));
+				if ($cont) $cont = (preg_match('/[?{}|&~!()^"]/',$awork[3]) === 0 and strlen($awork[3])<1280);
+				if ($cont and sizeof($awork)>5) $cont = (preg_match('/[?{}|&~!()^"]/',$awork[5]) === 0 and strlen($awork[5])<400);
 			}
 			if (!$cont) continue;
 			$warn = false;

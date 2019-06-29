@@ -47,7 +47,7 @@ $smversion = "1.26";
 <script type="text/javascript" src="js/jquery-autocomplete.js"></script>
 <script type="text/javascript" src="js/javascript-biginteger-master/biginteger.js"></script>
 <script type="text/javascript" src="js/moment.min.js"></script>
-
+<script type="text/javascript" src="js/PapaParse-5.0.0/papaparse.min.js"></script>
 <script type="text/javascript">
 // globals
 use_aes = true;
@@ -260,126 +260,121 @@ $(function(){
 		});
 	});
 	$('#doaccnt').click(function() {
-		var sourcemp = document.getElementById("sourcemp").value;
-		if (sourcemp) {
-			var action = $("input[name='accntact']:checked").val();
-			switch(action) {
-			case "delete":
-				if (!confirm("Are you sure to want to delete the Strongman account associated with the provided master password? If a matching account is found, if will be irrevocably removed, and all passwords it contains lost.")) {
-					return;
-				}
-				var sPub = genhash(sourcemp,1000);
-				if (sPub == hPub) {
-					if (!confirm("WARNING: The password provided is for your currently open account. Are you sure you want to remove this account?")) {
-						return;
-					}
-				}
-				$.ajax({
-					type: 'POST',
-					url: 'ajax/ajax-json-delaccount.php',
-					cache: false,
-					async: true,
-					dataType: 'json',
-					data: { hPass: JSON.stringify(sPub) },
-					timeout: 1000,
-					error: function(x, t, m) {
-						alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
-						document.getElementById("enable").checked = false;
-						setoffline();
-					},
-					success: function(retval) {
-						if (retval == 1) alert("The passphrase provided did not unlock any Strongman account. Deletion failed.");
-						else if (retval == 2) alert("Error deleting account. Please contact administrator.");
-						else {
-							alert("Strongman account deleted.");
-							document.getElementById("sourcemp").value="";
-						}
-					}
-				});
-				return;
-			case "import":
-				if (!hPriv) {
-					alert("You must unlock a Strongman account (enter a master password) before importing passwords from another account.");
-					return;
-				}
-				if (!confirm("Are you sure you want to import all password data from the Strongman account associated with the master password you supplied? If a matching account is found, all computed passwords will be converted to AES-encrypted passwords and added to your currently open account. Settings such as custom category names will not be imported. Imported passwords will overwrite any matching password entries in the destination. The source Strongman account will not be deleted.  You may wish to do that using the 'Delete Strongman Account' option.")) {
-					return;
-				}
-				break;
-			case "export":
-				if (!confirm("Are you sure you want to export all password data from the Strongman account associated with the master password you supplied? If a matching account is found, all passwords will be exported (downloaded) to a CSV-format plain text file.")) {
-					return;
-				}
-				break;
-			default:
-				alert("No action selected");
+		var action = $("input[name='accntact']:checked").val();
+		var sourcemp;
+		var sPriv="";
+		var sPub="";
+		if (action != "delete") {
+			if (!hPub) {
+				alert("You need to open a Strongman account first.");
 				return;
 			}
-			var sPub = genhash(sourcemp,1000);
-			if (sPub == hPub && action == "import") {
-				alert("ERROR: The origin account for password import is for your currently open account. If you are trying to change the master password, create a new account with it first.");
+		}
+		if (action == "import" || action == "delete") {
+			sourcemp = prompt("Enter the master password of the account to act upon.");
+			if (!sourcemp) return;
+			sPub = genhash(sourcemp,1000);
+			if (action == "import") sPriv = genhash(sourcemp,5000);
+		} else {
+			sPub = hPub;
+			sPriv = hPriv;
+			sourcemp = document.getElementById("fPassword").value.trim();
+		}
+		switch(action) {
+		case "delete":
+			if (!confirm("Are you sure to want to DELETE the Strongman account associated with the provided master password? If a matching account is found, if will be irrevocably removed, and all passwords it contains lost.")) {
 				return;
 			}
-			var sPriv = genhash(sourcemp,5000);
+			if (sPub == hPub) {
+				if (!confirm("WARNING: The password provided is for your currently open account. Are you sure you want to remove this account?")) {
+					return;
+				}
+			}
 			$.ajax({
 				type: 'POST',
-				url: 'ajax/ajax-json-list.php',
+				url: 'ajax/ajax-json-delaccount.php',
 				cache: false,
 				async: true,
 				dataType: 'json',
-				data: { hPass: sPub },
+				data: { hPass: JSON.stringify(sPub) },
 				timeout: 1000,
 				error: function(x, t, m) {
 					alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 					document.getElementById("enable").checked = false;
 					setoffline();
 				},
-				success: function(data) {
-					var aLen = Object.keys(data).length;
-					if (!aLen) {
-						alert("The master password provided does not unlock any existing Strongman account.");
-						return;
-					}
-					var ajresult = [];
-					for (var i=0; i<aLen; i++) {
-						var k = Object.keys(data)[i];
-						if (data[k].length) {
-							ajresult = ajresult.concat(data[k]);
+				success: function(retval) {
+					if (retval == 1) alert("The passphrase provided did not unlock any Strongman account. Deletion failed.");
+					else if (retval == 2) alert("Error deleting account. Please contact administrator.");
+					else {
+						if (sPub == hPub) {
+							lock();
 						}
+						alert("Strongman account deleted.");
 					}
-					var arraylen = ajresult.length;
-					var resultary = [];
-					var csv = '\ufeff';
-// https://stackoverflow.com/questions/17879198/adding-utf-8-bom-to-string-blob
-					for (var i=0; i<arraylen; i++) {
-						var item = ajresult[i];
-						item.data.replace(/ \#\d*/,"");
-						var res = item.data.match(/(.*?): (.*?) (#|\d*d)/);
-						var sdomain = res[1];
-						var suser = res[2];
-						var aopts = item.opts.split(',');
-						var incr = (aopts[2]) ? aopts[2] : "1";
-						var snotes = "";
-						var spass;
-						if (aopts[3]) {
-// notes
-							try {
-								var akey = aesjs.utils.hex.toBytes(sPriv);
-								var atext = aesjs.utils.hex.toBytes(aopts[3]);
-								var counter = 5; //= Math.floor(Math.random() * 10000);
-								var aesCtr = new aesjs.ModeOfOperation.ctr(akey, new aesjs.Counter(counter));
-								var decryptedBytes = aesCtr.decrypt(atext);
-								snotes = aesjs.utils.utf8.fromBytes(decryptedBytes);
+				}
+			});
+			return;
+		case "import":
+			if (!confirm("Are you sure you want to import all password data from the Strongman account associated with the master password you supplied? If a matching account is found, all computed passwords will be converted to AES-encrypted passwords and added to your currently open account. Settings such as custom category names will not be imported. Imported passwords will overwrite any matching password entries in the current account. The source Strongman account will not be deleted.  You may wish to do that using the 'Delete Strongman Account' option.")) {
+				return;
+			}
+			if (sPub == hPub && action == "import") {
+				alert("ERROR: The origin account for password import is for your currently open account. If you are trying to change the master password, create a new account with it first.");
+				return;
+			}
+			break;
+		case "local":
+			var file = fileInput.files[0];
+			if (!file) {
+				alert("You need to first choose a local CSV password file for import.");
+				return;
+			}
+			if (!confirm("Note that only Keepass-compatible CSV files are supported. Imported passwords entries will be added to your currently open account, overwriting any matching entries in the current account. Settings such as custom category names will not be imported.")) {
+				return;
+			}
+			var textType = /text\/csv/;
+			if (file.type.match(textType)) {
+				Papa.parse(file,
+				{
+					header: true,
+					skipEmptyLines: 'greedy',
+					complete: function(results, file) {
+//						console.log("Parsing complete:", results, file);
+						if ($.inArray('Login Name',results.meta.fields) < 0) {
+							alert("CSV file does not contain expected header fields.");
+							return;
+						}
+						var aLen = Object.keys(results).length;
+						if (!aLen) {
+							alert("The selected file does not contain CSV data.");
+							return;
+						}
+						var ajresult = [];
+						for (var i=0; i<aLen; i++) {
+							var k = Object.keys(results)[i];
+							if (results[k].length) {
+								ajresult = ajresult.concat(results[k]);
 							}
-							catch(err) {
-								if (use_aes) {
-									showMsg("There was an error AES-decrypting secure notes. This can occur if you are using an unsupported device.","w3-red");
-								} else {
-									showMsg("AES decryption failed due to your low IOS version number. v10+ is required","w3-red");
-								}
-								return;
+						}
+						var arraylen = ajresult.length;
+						var resultary = [];
+						var re = /[?{}|&~!()^"\\]+/;
+						for (var i=0; i<arraylen; i++) {
+							var line = ajresult[i];
+							var sdomain = line['Web Site'];
+							var suser = line['Login Name'];
+							var snotes = line['Comments'];
+							var spass = line['Password'];
+							if (re.test(suser) || re.test(sdomain)) {
+								alert("Skipping " + sdomain + ": Illegal characters found in username or domain");
+								continue;
 							}
-							if (action == "import") {
+							if (!suser || !sdomain) {
+								alert("Found empty (no username or no domain) entry, skipping");
+								continue;
+							}
+							if (snotes) {
 								try {
 									var akey = aesjs.utils.hex.toBytes(hPriv);
 									var ctext = aesjs.utils.utf8.toBytes(snotes);
@@ -397,31 +392,6 @@ $(function(){
 									return;
 								}
 							}
-						}
-						if (aopts.length>5) {
-							try {
-								var akey = aesjs.utils.hex.toBytes(sPriv);
-								var atext = aesjs.utils.hex.toBytes(aopts[5]);
-								var counter = 5; //= Math.floor(Math.random() * 10000);
-								var aesCtr = new aesjs.ModeOfOperation.ctr(akey, new aesjs.Counter(counter));
-								var decryptedBytes = aesCtr.decrypt(atext);
-								spass = aesjs.utils.utf8.fromBytes(decryptedBytes);
-							}
-							catch(err) {
-								if (use_aes) {
-									showMsg("There was an AES-decryption error. This can occur if you are using an unsupported device.","w3-red");
-								} else {
-									showMsg("AES decryption failed due to your low IOS version number. v10+ is required","w3-red");
-								}
-								return;
-							}
-						} else {
-							setpagerules(aopts[0]);
-							spass = computePass(sourcemp.trim() + sdomain.trim() + suser.trim() + aopts[2],aopts[1]);
-						}
-						if (action == "export") {
-							csv += '"Strongman' +  '","' + suser.trim() + '","' + spass + '","' + sdomain.trim() + '","' + snotes + '"' + "\n";
-						} else {
 							var chex;
 							try {
 								var akey = aesjs.utils.hex.toBytes(hPriv);
@@ -439,10 +409,9 @@ $(function(){
 								}
 								return;
 							}
-							resultary.push({ user: suser, domain: sdomain, opts: "15,14,1,"+snotes+","+aopts[4]+","+chex});
+							resultary.push({ user: suser.toLowerCase(), domain: sdomain.toLowerCase(), opts: "15,14,1,"+snotes+",0,"+chex});
 						}
-					}
-					if (action == "import") {
+						console.log(resultary);
 						$.ajax({
 							type: 'POST',
 							url: 'ajax/ajax-json-store.php',
@@ -459,30 +428,185 @@ $(function(){
 							success: function(retval) {
 								alert("Entry import complete");
 								$("#entry").autocomplete("flushCache");
-								document.getElementById("sourcemp").value="";
+							}
+						});
+					},
+					error: function(err,file) {
+						alert("File could not be read, error:" + err);
+					}
+				});
+			} else {
+				alert("Only CSV type files are supported");
+			}
+			return;
+		case "export":
+			if (!confirm("Are you sure you want to export to a CSV file all password data from the currently open Strongman account?")) {
+				return;
+			}
+			break;
+		default:
+			alert("No action selected");
+			return;
+		}
+		$.ajax({
+			type: 'POST',
+			url: 'ajax/ajax-json-list.php',
+			cache: false,
+			async: true,
+			dataType: 'json',
+			data: { hPass: sPub },
+			timeout: 1000,
+			error: function(x, t, m) {
+				alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
+				document.getElementById("enable").checked = false;
+				setoffline();
+			},
+			success: function(data) {
+				var aLen = Object.keys(data).length;
+				if (!aLen) {
+					alert("The master password provided does not unlock any existing Strongman account.");
+					return;
+				}
+				var ajresult = [];
+				for (var i=0; i<aLen; i++) {
+					var k = Object.keys(data)[i];
+					if (data[k].length) {
+						ajresult = ajresult.concat(data[k]);
+					}
+				}
+				var arraylen = ajresult.length;
+				var resultary = [];
+				var csv = '\ufeff"Account","Login Name","Password","Web Site","Comments"' + "\n";
+// https://stackoverflow.com/questions/17879198/adding-utf-8-bom-to-string-blob
+				for (var i=0; i<arraylen; i++) {
+					var item = ajresult[i];
+					item.data.replace(/ \#\d*/,"");
+					var res = item.data.match(/(.*?): (.*?) (#|\d*d)/);
+					var sdomain = res[1];
+					var suser = res[2];
+					var aopts = item.opts.split(',');
+					var incr = (aopts[2]) ? aopts[2] : "1";
+					var snotes = "";
+					var spass;
+					if (aopts[3]) {
+// notes
+						try {
+							var akey = aesjs.utils.hex.toBytes(sPriv);
+							var atext = aesjs.utils.hex.toBytes(aopts[3]);
+							var counter = 5; //= Math.floor(Math.random() * 10000);
+							var aesCtr = new aesjs.ModeOfOperation.ctr(akey, new aesjs.Counter(counter));
+							var decryptedBytes = aesCtr.decrypt(atext);
+							snotes = aesjs.utils.utf8.fromBytes(decryptedBytes);
+						}
+						catch(err) {
+							if (use_aes) {
+								showMsg("There was an error AES-decrypting secure notes. This can occur if you are using an unsupported device.","w3-red");
+							} else {
+								showMsg("AES decryption failed due to your low IOS version number. v10+ is required","w3-red");
+							}
+							return;
+						}
+						if (action == "import") {
+							try {
+								var akey = aesjs.utils.hex.toBytes(hPriv);
+								var ctext = aesjs.utils.utf8.toBytes(snotes);
+								var counter = 5;//Math.floor(Math.random() * 10000);
+								var aesCtr = new aesjs.ModeOfOperation.ctr(akey, new aesjs.Counter(counter));
+								var encryptedBytes = aesCtr.encrypt(ctext);
+								snotes = aesjs.utils.hex.fromBytes(encryptedBytes);
+							}
+							catch(err) {
+								if (use_aes) {
+									showMsg("There was an AES-encryption error. This can occur if you are using an unsupported device.","w3-red");
+								} else {
+									showMsg("AES encryption of the notes failed due to your low IOS version number (" + version + ")","w3-red");
+								}
+								return;
+							}
+						}
+					}
+					if (aopts.length>5) {
+						try {
+							var akey = aesjs.utils.hex.toBytes(sPriv);
+							var atext = aesjs.utils.hex.toBytes(aopts[5]);
+							var counter = 5; //= Math.floor(Math.random() * 10000);
+							var aesCtr = new aesjs.ModeOfOperation.ctr(akey, new aesjs.Counter(counter));
+							var decryptedBytes = aesCtr.decrypt(atext);
+							spass = aesjs.utils.utf8.fromBytes(decryptedBytes);
+						}
+						catch(err) {
+							if (use_aes) {
+								showMsg("There was an AES-decryption error. This can occur if you are using an unsupported device.","w3-red");
+							} else {
+								showMsg("AES decryption failed due to your low IOS version number. v10+ is required","w3-red");
+							}
+							return;
+						}
+					} else {
+						setpagerules(aopts[0]);
+						spass = computePass(sourcemp.trim() + sdomain.trim() + suser.trim() + aopts[2],aopts[1]);
+					}
+					if (action == "export") {
+						csv += '"Strongman' +  '","' + suser.trim() + '","' + spass + '","' + sdomain.trim() + '","' + snotes + '"' + "\n";
+					} else {
+						var chex;
+						try {
+							var akey = aesjs.utils.hex.toBytes(hPriv);
+							var ctext = aesjs.utils.utf8.toBytes(spass);
+							var counter = 5;//Math.floor(Math.random() * 10000);
+							var aesCtr = new aesjs.ModeOfOperation.ctr(akey, new aesjs.Counter(counter));
+							var encryptedBytes = aesCtr.encrypt(ctext);
+							chex = aesjs.utils.hex.fromBytes(encryptedBytes);
+						}
+						catch(err) {
+							if (use_aes) {
+								showMsg("There was an AES-encryption error. This can occur if you are using an unsupported device.","w3-red");
+							} else {
+								showMsg("AES encryption failed due to your low IOS version number (" + version + ")","w3-red");
+							}
+							return;
+						}
+						resultary.push({ user: suser, domain: sdomain, opts: "15,14,1,"+snotes+","+aopts[4]+","+chex});
+					}
+				}
+				if (action == "import") {
+					$.ajax({
+						type: 'POST',
+						url: 'ajax/ajax-json-store.php',
+						cache: false,
+						async: true,
+						dataType: 'json',
+						data: { hPass: JSON.stringify(hPub), check: JSON.stringify(0), entries: JSON.stringify(resultary) },
+						timeout: 1000,
+						error: function(x, t, m) {
+							alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
+							document.getElementById("enable").checked = false;
+							setoffline();
+						},
+						success: function(retval) {
+							alert("Entry import complete");
+							$("#entry").autocomplete("flushCache");
 //							var venc = (retval & (1 << 0)); // aes
 //							var aes = (retval & (1 << 1)); // aes
 //							var paid = (retval & (1 << 2));
 //							var warn = (retval & (1 << 3)); // exists and has changed (warn)
-							}
-						});
-					} else {
-						var blob = new Blob([csv], {type: 'text/csv'});
-						if(window.navigator.msSaveOrOpenBlob) {
-							window.navigator.msSaveBlob(blob, 'Strongman-passwords.csv');
-						} else {
-							var elem = window.document.createElement('a');
-							elem.href = window.URL.createObjectURL(blob);
-							elem.download = 'Strongman-passwords.csv';
-							document.body.appendChild(elem);
-							elem.click();
-							document.body.removeChild(elem);
 						}
-						document.getElementById("sourcemp").value="";
+					});
+				} else {
+					var blob = new Blob([csv], {type: 'text/csv'});
+					if(window.navigator.msSaveOrOpenBlob) {
+						window.navigator.msSaveBlob(blob, 'Strongman-passwords.csv');
+					} else {
+						var elem = window.document.createElement('a');
+						elem.href = window.URL.createObjectURL(blob);
+						elem.download = 'Strongman-passwords.csv';
+						document.body.appendChild(elem);
+						elem.click();
+						document.body.removeChild(elem);
 					}
 				}
-			});
-		} else alert ("You must provide a master password for the account on which to act.");
+			}
+		});
 	});
 	$("#enable").click(function() {
 		if ($(this).is(":checked")) {
@@ -563,6 +687,17 @@ $(function(){
 			$("#autosecs").attr("disabled",true);
 		}
 	});
+
+	$("#fileInput").change(function() {
+		var val = $(this).val();
+		var regex = /\.csv$/i;
+		document.getElementById('radio_l').checked=true;
+		if (val && !regex.test(val)) {
+			$(this).val('');
+			alert('Please select a CVS file (.cvs extension).');
+		}
+	});
+
 	<?=(isset($_COOKIE["matchon"])) ? "initmatch(1);" : "initmatch(0);";?>
 	<?=(isset($_COOKIE["permitnodw"])) ? "initnodw(1);" : "initnodw(0);";?>
 	resetcats();
@@ -652,6 +787,16 @@ function setoffline() {
 	document.getElementById("matchon").disabled = true;
 	document.getElementById("matchdel").checked = false;
 	document.getElementById("matchdel").disabled = true;
+}
+
+function checkext() {
+	var file = document.querySelector("#fileInput");
+	document.getElementById('radio_l').checked=true;
+//lgs
+	if ( /\.csv$/i.test(file.files[0].name) === false ) {
+		alert("Please select a CVS file for import");
+		return false;
+	}
 }
 
 function setnotes(notes) {
@@ -976,11 +1121,12 @@ function help(id) {
 		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you invent to make it easy to remember.</p><p>Since memorizing a minimum 9 character random password is very difficult, we instead recommend Diceware passphrases. They are extremely secure, yet also easy to memorize. Read more about Diceware <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>here</a>. Diceware passphrases can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Strongman now <strong>requires</strong> a 6+ word master passphrase, unless overridden by a setting (see 'Settings and Tools/General Settings/Permit non-Diceware master passwords' at the bottom of the app).</p>";
 	} else if (id == 'passtype') {
 		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button).</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password (see below).</p><p>Computed passwords are <strong>not</strong> stored on the server; they are calculated by your browser.</p>If you want to use your own password or modify a computed password, click the edit button, or simply click into the Password field and make your changes. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
-	} else if (id == 'mergepass') {
-		msg = "<p>This option imports all the passwords and secure notes from a <strong>second</strong> Strongman account. This is primarily used to change the master password.</p><p><strong>To change a master password:</strong><ol><li>Enter the new master password and compute or save a password.  That creates a new Strongman account with the new master password.</li><li>Do the password import, specifying the master password of the old account.</li><li>After the passwords and notes are imported, you can delete the old Strongman account via the 'Delete Strongman Account' option.</li></ol>";
+	} else if (id == 'accountact') {
+		msg = "<p>Use 'Import passwords from another Strongman account' to <strong>change the master password,</strong> as follows:</p><ol><li>Enter the new master password and compute or save a password.  That creates a new Strongman account with the new master password.</li><li>Do the password import, specifying the master password of the old account.</li><li>After the passwords and notes are imported, you can delete the old Strongman account via the 'Remove Strongman Account' option.</li></ol>";
 	}
 	document.getElementById("sbmessage").innerHTML = msg;
 	togAccordian('sidebar');
+	$('html, body').animate({ scrollTop: 0 }, 'fast');
 }
 function is_ios() {
   var userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -1352,8 +1498,8 @@ function verifypp() {
 	}
 }
 function validateuserdom(ob) {
-	var re = /[?{}|&~!()^"]+/;
-	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"";
+	var re = /[?{}|&~!()^"\\]+/;
+	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"\\";
 	if (ob.id == "entry") {
 		if (re.test(ob.value)) {
 			alert(msg);
@@ -1605,15 +1751,13 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </p>
 <button id="savesettings" class="w3-button w3-blue w3-small w3-round" title="Account settings can only be saved after master password is entered." disabled>Save Account Settings</button>
 <p>
-<label><strong>Import/Export/Delete Account</label></strong>
- <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick='help("mergepass");'></i>
+<label><strong>Account Actions</label></strong>
+ <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick='help("accountact");'></i>
 <br>
-<input type="radio" name="accntact" value="import"> Import passwords from another Strongman account<br>
-<input type="radio" name="accntact" value="export"> Export all password data to keepass compatible CSV file<br>
-<input type="radio" name="accntact" value="delete"> Remove Strongman account
-</p>
-<p>
-<input class="w3-input w3-border w3-round" type="text" id="sourcemp" name="sourcemp" placeholder="Master password of Strongman account to act upon">
+<input type="radio" name="accntact" value="export" id="radio_e"> Export all password data to keepass compatible CSV file<br>
+<input type="radio" name="accntact" value="import" id="radio_i"> Import passwords from another Strongman account<br>
+<input type="radio" name="accntact" value="local" id="radio_l"> Import passwords from CSV file chosen below <input class="w3-small" type="file" id="fileInput"><br>
+<input type="radio" name="accntact" value="delete" id="radio_d"> Remove Strongman account
 </p>
 <button id="doaccnt" class="w3-button w3-blue w3-small w3-round" title="These actions require that a master password be entered.">Submit</button>
 </div><br>
