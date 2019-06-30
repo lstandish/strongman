@@ -74,9 +74,9 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	if (!($retval & 1)) {
 		foreach ($entries as $entry) {
 			$domain = preg_replace('/[?{}|&~!()^"]/',"",$entry["domain"]);
-			if (strlen($domain) > 70) continue;
+			if (strlen($domain) > 100) continue;
 			$user = preg_replace('/[?{}|&~!()^"]/',"",$entry["user"]);
-			if (strlen($user) > 50 ) continue;
+			if (strlen($user) > 70 ) continue;
 			$options = $entry["opts"];
 			$awork = explode(",",$options);
 			$cont = (sizeof($awork)<7);

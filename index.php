@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.26";
+$smversion = "1.27";
 ?>
 <!DOCTYPE html>
 <html>
@@ -330,7 +330,7 @@ $(function(){
 				alert("You need to first choose a local CSV password file for import.");
 				return;
 			}
-			if (!confirm("Note that only Keepass-compatible CSV files are supported. Imported passwords entries will be added to your currently open account, overwriting any matching entries in the current account. Settings such as custom category names will not be imported.")) {
+			if (!confirm("Imported passwords entries will be added to your currently open account, overwriting any matching entries in the current account. Category names will not be imported.")) {
 				return;
 			}
 			var textType = /text\/csv/;
@@ -341,8 +341,20 @@ $(function(){
 					skipEmptyLines: 'greedy',
 					complete: function(results, file) {
 //						console.log("Parsing complete:", results, file);
-						if ($.inArray('Login Name',results.meta.fields) < 0) {
-							alert("CSV file does not contain expected header fields.");
+//lgs
+						var missing = "";
+						var userheaders = [];
+						var lengths = [ 100,70,400,1280 ];
+//						var mfields = results.meta.fields;
+						for (var i=0; i<4 ; i++) {
+							var test = document.getElementById('csv' + i).value;
+							userheaders = userheaders.concat(test);
+							if ($.inArray(test,results.meta.fields) < 0) {
+								missing += " '" + test + "'";
+							}
+						}
+						if (missing) {
+							alert("The following header(s) are missing from your CSV file: " + missing + ". If the fields are present but with different headers, you can rename the headers via the 'custom CSV headers' link");
 							return;
 						}
 						var aLen = Object.keys(results).length;
@@ -359,19 +371,31 @@ $(function(){
 						}
 						var arraylen = ajresult.length;
 						var resultary = [];
-						var re = /[?{}|&~!()^"\\]+/;
+						var re = /[?{}|&~!()^"\\=]+/;
+						var skipped = "";
+						outerloop:
 						for (var i=0; i<arraylen; i++) {
 							var line = ajresult[i];
-							var sdomain = line['Web Site'];
-							var suser = line['Login Name'];
-							var snotes = line['Comments'];
-							var spass = line['Password'];
+							var sdomain = line[userheaders[0]];
+							var suser = line[userheaders[1]];
+							var spass = line[userheaders[2]];
+							var snotes = line[userheaders[3]];
+							for (var j=0; j<4; j++) {
+								if (line[userheaders[j]].length > lengths[j]) {
+									skipped += sdomain + '/' + suser + ": excessive field length\n";
+									continue outerloop;
+								}
+							}
 							if (re.test(suser) || re.test(sdomain)) {
-								alert("Skipping " + sdomain + ": Illegal characters found in username or domain");
+								skipped += sdomain + '/' + suser + ": Illegal characters found in username or domain\n";
 								continue;
 							}
-							if (!suser || !sdomain) {
-								alert("Found empty (no username or no domain) entry, skipping");
+							if (!suser || !sdomain || !spass) {
+								skipped += sdomain + '/' + suser + ": Empty";
+								if (!suser) skipped += " username";
+								if (!sdomain) skipped += " domain";
+								if (!spass) skipped += " password";
+								skipped += "\n";
 								continue;
 							}
 							if (snotes) {
@@ -411,7 +435,7 @@ $(function(){
 							}
 							resultary.push({ user: suser.toLowerCase(), domain: sdomain.toLowerCase(), opts: "15,14,1,"+snotes+",0,"+chex});
 						}
-						console.log(resultary);
+//						console.log(resultary);
 						$.ajax({
 							type: 'POST',
 							url: 'ajax/ajax-json-store.php',
@@ -430,6 +454,9 @@ $(function(){
 								$("#entry").autocomplete("flushCache");
 							}
 						});
+						if (skipped) {
+							alert("Warning, the following entries were skipped:\n" + skipped);
+						}
 					},
 					error: function(err,file) {
 						alert("File could not be read, error:" + err);
@@ -1348,6 +1375,7 @@ function resetcats() {
 	sel.selectedIndex = "0";
 }
 
+
 function clearhash() {
 	hPub = "";
 	hPriv = "";
@@ -1498,8 +1526,8 @@ function verifypp() {
 	}
 }
 function validateuserdom(ob) {
-	var re = /[?{}|&~!()^"\\]+/;
-	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"\\";
+	var re = /[?{}|&~!()^"\\=]+/;
+	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"\\=";
 	if (ob.id == "entry") {
 		if (re.test(ob.value)) {
 			alert(msg);
@@ -1680,12 +1708,12 @@ function validateincr(ob) {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" tabindex="2" maxlength="70">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" tabindex="2" maxlength="100">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
   <i class='fa fa-copy w3-large' onclick="myCopy('Username','username');" title="Copy username to clipboard"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3" maxlength="50">
+  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3" maxlength="70">
   </p>
   <p>
   <label><strong>Password</strong></label><br>
@@ -1754,9 +1782,16 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <label><strong>Account Actions</label></strong>
  <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick='help("accountact");'></i>
 <br>
-<input type="radio" name="accntact" value="export" id="radio_e"> Export all password data to keepass compatible CSV file<br>
+<input type="radio" name="accntact" value="export" id="radio_e"> Export all password data to Keepass compatible CSV file<br>
 <input type="radio" name="accntact" value="import" id="radio_i"> Import passwords from another Strongman account<br>
-<input type="radio" name="accntact" value="local" id="radio_l"> Import passwords from CSV file chosen below <input class="w3-small" type="file" id="fileInput"><br>
+<input type="radio" name="accntact" value="local" id="radio_l"> Import passwords from CSV file chosen below
+ <input class="w3-small" type="file" id="fileInput"> <a href="javascript:togAccordian('cvscust');">custom CVS headers</a>
+<div id='cvscust' style="display:none;">
+<input type='text' maxlength='25' id='csv0' value='Web Site'> (default: Web Site)<br>
+<input type='text' maxlength='25' id='csv1' value='Login Name'> (default: Login Name)<br>
+<input type='text' maxlength='25' id='csv2' value='Password'> (default: Password)<br>
+<input type='text' maxlength='25' id='csv3' value='Comments'> (default: Comments)<br>
+</div>
 <input type="radio" name="accntact" value="delete" id="radio_d"> Remove Strongman account
 </p>
 <button id="doaccnt" class="w3-button w3-blue w3-small w3-round" title="These actions require that a master password be entered.">Submit</button>

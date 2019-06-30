@@ -57,7 +57,7 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
 	if ($aes_expire - $start_date > $trial_secs) $retval += 4; // paid account
 // when checking bits, enclose in parens before negating
 	if (!($retval & 1)) {
-		if (is_string($notes) and strlen($notes) < 657) {
+		if (is_string($notes) and strlen($notes) < 1280) {
 			$warn = false;
 			$changed = true;
 			if (isset($config_data[$domain][$user])) {
