@@ -721,7 +721,7 @@ $(function(){
 		document.getElementById('radio_l').checked=true;
 		if (val && !regex.test(val)) {
 			$(this).val('');
-			alert('Please select a CVS file (.cvs extension).');
+			alert('Please select a CSV file (.csv extension).');
 		}
 	});
 
@@ -821,7 +821,7 @@ function checkext() {
 	document.getElementById('radio_l').checked=true;
 //lgs
 	if ( /\.csv$/i.test(file.files[0].name) === false ) {
-		alert("Please select a CVS file for import");
+		alert("Please select a CSV file for import");
 		return false;
 	}
 }
@@ -1785,8 +1785,8 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <input type="radio" name="accntact" value="export" id="radio_e"> Export all password data to Keepass compatible CSV file<br>
 <input type="radio" name="accntact" value="import" id="radio_i"> Import passwords from another Strongman account<br>
 <input type="radio" name="accntact" value="local" id="radio_l"> Import passwords from CSV file chosen below
- <input class="w3-small" type="file" id="fileInput"> <a href="javascript:togAccordian('cvscust');">custom CVS headers</a>
-<div id='cvscust' style="display:none;">
+ <input class="w3-small" type="file" id="fileInput"> <a href="javascript:togAccordian('csvcust');">custom CSV headers</a>
+<div id='csvcust' style="display:none;">
 <input type='text' maxlength='25' id='csv0' value='Web Site'> (default: Web Site)<br>
 <input type='text' maxlength='25' id='csv1' value='Login Name'> (default: Login Name)<br>
 <input type='text' maxlength='25' id='csv2' value='Password'> (default: Password)<br>
