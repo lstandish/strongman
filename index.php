@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.27";
+$smversion = "1.28";
 ?>
 <!DOCTYPE html>
 <html>
@@ -266,7 +266,7 @@ $(function(){
 		var sPub="";
 		if (action != "delete") {
 			if (!hPub) {
-				alert("You need to open a Strongman account first.");
+				alert("You need to enter a master password first.");
 				return;
 			}
 		}
@@ -376,6 +376,10 @@ $(function(){
 						outerloop:
 						for (var i=0; i<arraylen; i++) {
 							var line = ajresult[i];
+							if (('code' in line) && ('row' in line)) {
+								skipped += "Row " + line['row'] + ": " + line['code'];
+								continue;
+							}
 							var sdomain = line[userheaders[0]];
 							var suser = line[userheaders[1]];
 							var spass = line[userheaders[2]];
@@ -642,13 +646,13 @@ $(function(){
 			eraseCookie("offline");
 			document.getElementById("doaccnt").disabled = false;
 			if (hPub) {
-//				document.getElementById("savesettings").disabled = false;
+				document.getElementById("savesettings").disabled = false;
 				autoenable(true);
 			}
 			showMsg("Online mode","w3-green");
 		} else {
 			setoffline();
-			document.getElementById("doaccnt").disabled = true;
+//	doaccnt and savesettings buttons disabled by setoffline()
 			setCookie("offline","1",1000);
 			showMsg("Offline mode","w3-yellow");
 		}
@@ -1461,12 +1465,12 @@ function hashpass() {
 						var startdate = moment(dates[0]*1000).format('L');
 						document.getElementById("accountdata").innerHTML="Free account, started " + startdate;
 						document.getElementById("msgbox").style.display='none';
-						document.getElementById("savesettings").disabled = false;
-						document.getElementById("doaccnt").disabled = false;
 						autoenable(true);
 						$("#entry").autocomplete("enable");
 						showMsg("Master password profile successfully loaded","w3-green");
 					}
+					document.getElementById("savesettings").disabled = false;
+//					document.getElementById("doaccnt").disabled = false;
 					document.getElementById("manualcopy").checked = (gsettings & (1 << 0));
 					var prefixon = (gsettings & (1 << 1));
 					document.getElementById("prefixon").checked = prefixon;
@@ -1505,6 +1509,7 @@ function hashpass() {
 				setnotes("");
 				resetcats();
 				document.getElementById("doaccnt").disabled = true;
+				document.getElementById("savesettings").disabled = true;
 			}
 		}
 	}

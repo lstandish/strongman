@@ -26,7 +26,7 @@ This file is part of Strongman.
     $cats = json_decode(stripslashes($_POST["cats"]),true); // cats is an array
     $beta_mode = true;
     $retval = 0;
-    $start_date= 0;
+//    $start_date= 0;
     $aes_expire = 0;
     $trial_secs = 60*60*24*21;
     $curtime = time();
@@ -43,14 +43,15 @@ var exists = (retval & (1 << 3)); // check only: domain  + username has stored p
     if (file_exists("$datapath/$hashPass")) {
 	$config_data = parse_ini_file("$datapath/$hashPass",true);
 	$account = array_shift($config_data);
-	$ocats = (isset($account['custcats'])) ? explode(',',$account['custcats']) : [];
+//	$ocats = (isset($account['custcats'])) ? explode(',',$account['custcats']) : [];
 	$changed = ($account['settings'] != $settings || $ocats != $cats);
 
     } else {
 	$start_date = $curtime;
 	$aes_expire = -1; //$start_date + $trial_secs; // this is for permanent free account
 	$account = array(
-		'dates' => "$start_date,$aes_expire" // 21 days free aes password storage.
+		'dates' => "$start_date,$aes_expire", // 21 days free aes password storage.
+		'custcats' => "Uncategorized,Banking,E-commerce,Services,Social Media,Tools/Admin,Forums,Government,Unused,Unused"
 	);
 	$config_data = array();
     }
