@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.28";
+$smversion = "1.29";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1153,7 +1153,7 @@ function help(id) {
 	} else if (id == 'passtype') {
 		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button).</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password (see below).</p><p>Computed passwords are <strong>not</strong> stored on the server; they are calculated by your browser.</p>If you want to use your own password or modify a computed password, click the edit button, or simply click into the Password field and make your changes. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
 	} else if (id == 'accountact') {
-		msg = "<p>Use 'Import passwords from another Strongman account' to <strong>change the master password,</strong> as follows:</p><ol><li>Enter the new master password and compute or save a password.  That creates a new Strongman account with the new master password.</li><li>Do the password import, specifying the master password of the old account.</li><li>After the passwords and notes are imported, you can delete the old Strongman account via the 'Remove Strongman Account' option.</li></ol>";
+		msg = "<p>Use 'Import passwords from another Strongman account' to <strong>change the master password,</strong> as follows:</p><ol><li>Enter the new master password and click 'Submit'.</li><li>Do the password import, specifying the master password of the old account.</li><li>After the passwords and notes are imported, you can delete the old Strongman account via the 'Remove Strongman Account' option.</li></ol>";
 	}
 	document.getElementById("sbmessage").innerHTML = msg;
 	togAccordian('sidebar');
