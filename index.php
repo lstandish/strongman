@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.29";
+$smversion = "1.30";
 ?>
 <!DOCTYPE html>
 <html>
@@ -657,6 +657,7 @@ $(function(){
 			showMsg("Offline mode","w3-yellow");
 		}
 	});
+
 	$("#eyemaster").click(function() {
 		if ($(this).hasClass("fa-eye")) {
 			setCookie("focushidepwd","1",1000);
@@ -671,20 +672,7 @@ $(function(){
 		$(this).toggleClass("fa-eye");
 		$(this).toggleClass("fa-eye-slash");
 	});
-	$("#eyecomp").click(function() {
-		if ($(this).hasClass("fa-eye")) {
-			setCookie("focushidepwd","1",1000);
-			$(this).attr("title","always hide password");
-			$("#cPassword").attr("type","password");
-		} else {
-			eraseCookie("focushidepwd");
-			$(this).attr("title","show password upon focus");
-			$("#cPassword").attr("type","text");
-			document.getElementById("cPassword").focus();
-		}
-		$(this).toggleClass("fa-eye");
-		$(this).toggleClass("fa-eye-slash");
-	});
+
 	$("#savegeneral").click(function() {
 		if ($("#autoclear").is(":checked")) {
 			if ($("#autosecs").val() < 30 || $("#autosecs").val() > 9999) {
@@ -770,7 +758,9 @@ $(function(){
 		document.getElementById("autosecs").value = secs;
 		document.getElementById("autosecs").disabled = false;
 	<?php } ?>
+
 });
+
 
 //window.onload = function() {
 //    document.getElementById('myreset').onclick = clearform;
@@ -1722,7 +1712,6 @@ function validateincr(ob) {
   </p>
   <p>
   <label><strong>Password</strong></label><br>
-<i class="w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyecomp"></i>
 <i class='fa fa-edit w3-large' onclick="editpass();" title="Edit password"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Password','cPassword');" title="Copy password to clipboard"></i>
 <i class='fa fa-navicon w3-large' onclick="togAccordian('optionsdiv');" title="Password Computation Options"></i>
@@ -1769,7 +1758,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <p>
 <label><strong>General Settings</label></strong><br>
 <input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999" disabled> secs inactivity.<br>
-<input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords (Probably insecure, not recommended.)
+<input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords.
 </p>
 <button id="savegeneral" class="w3-button w3-blue w3-small w3-round">Save General Settings</button>
 <p>
@@ -1821,13 +1810,11 @@ fPassword.onfocus = function() {
 };
 
 cPassword.onblur = function() {
-	cPassword.type = "password"
+	cPassword.type = "password";
 };
 
 cPassword.onfocus = function() {
-	if ($("#eyecomp").hasClass("fa-eye")) {
-		cPassword.type = "text";
-	}
+	cPassword.type = "text";
 //	return checkpass(document.getElementById("cPassword"));
 };
 </script>
