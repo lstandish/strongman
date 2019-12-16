@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.30";
+$smversion = "1.31";
 ?>
 <!DOCTYPE html>
 <html>
@@ -659,18 +659,12 @@ $(function(){
 	});
 
 	$("#eyemaster").click(function() {
-		if ($(this).hasClass("fa-eye")) {
-			setCookie("focushidepwd","1",1000);
-			$(this).attr("title","always hide password");
-			$("#fPassword").attr("type","password");
-		} else {
-			eraseCookie("focushidepwd");
-			$(this).attr("title","show password upon focus");
-			$("#fPassword").attr("type","text");
-			document.getElementById("fPassword").focus();
-		}
-		$(this).toggleClass("fa-eye");
-		$(this).toggleClass("fa-eye-slash");
+		eyework();
+		$(this).focus();
+	});
+	$("#eyecomp").click(function() {
+		eyework();
+		$(this).focus();
 	});
 
 	$("#savegeneral").click(function() {
@@ -783,6 +777,19 @@ function resetTimer() {
 	}
 }
 
+function eyework() {
+	if ($(".myeye").hasClass("fa-eye")) {
+		setCookie("focushidepwd","1",1000);
+		$(".myeye").attr("title","always hide password");
+		$(".myeye").attr("type","password");
+	} else {
+		eraseCookie("focushidepwd");
+		$(".myeye").attr("title","show password upon focus");
+		$(".myeye").attr("type","text");
+	}
+	$(".myeye").toggleClass("fa-eye");
+	$(".myeye").toggleClass("fa-eye-slash");
+}
 
 function autoenable(on) {
 	var x = document.getElementById("entry");
@@ -1182,9 +1189,18 @@ function myCopy(msg,id) {
 				iosCopy(copyText);
 			}
 		} else {
+
+			var ispass = 0;
 			if (id == "entry") copyText.value = copyText.value.trim();
 			copyText.select();
+			if (copyText.type == "password") {
+				ispass = 1;
+				copyText.type = "text";
+			}
 			document.execCommand("copy");
+			if (ispass) {
+				copyText.type = "password";
+			}
 			if (msg) {
 				var color;
 				if (msg == "Password") color = "w3-grey";
@@ -1684,7 +1700,7 @@ function validateincr(ob) {
   <p>
   <label><strong>Master Password</strong></label> <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('password');" title="Password Help"></i>
 <i class="fa fa-lock w3-large" onclick="lock();" style="color:goldenrod;" title="Clear master password, site password, and clipboard" id="lockstate"></i>
-<i class="w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyemaster"></i>
+<i class="myeye w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyemaster"></i>
 <span class="w3-row">
 <span class="w3-col s11">
   <input class="w3-input w3-border w3-round icon-input" name="fPassword" id='fPassword' type='password' placeholder="Enter a strong passphrase" tabindex="1" onchange="clearhash();">
@@ -1712,6 +1728,7 @@ function validateincr(ob) {
   </p>
   <p>
   <label><strong>Password</strong></label><br>
+<i class="myeye w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyecomp"></i>
 <i class='fa fa-edit w3-large' onclick="editpass();" title="Edit password"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Password','cPassword');" title="Copy password to clipboard"></i>
 <i class='fa fa-navicon w3-large' onclick="togAccordian('optionsdiv');" title="Password Computation Options"></i>
@@ -1731,7 +1748,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </div>
 <span class="w3-row">
 <span class="w3-col s7">
-<input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='text' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4" maxlength="200">
+<input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='password' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4" maxlength="200">
 </span>
 <span class="w3-col s4" style="margin: 8px 0 0 3px;">
   <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options">Compute</button>
@@ -1814,7 +1831,9 @@ cPassword.onblur = function() {
 };
 
 cPassword.onfocus = function() {
-	cPassword.type = "text";
+	if ($("#eyecomp").hasClass("fa-eye")) {
+		cPassword.type = "text";
+	}
 //	return checkpass(document.getElementById("cPassword"));
 };
 </script>
