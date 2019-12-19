@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.31";
+$smversion = "1.32";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1681,7 +1681,7 @@ function validateincr(ob) {
 <div id='passvaultMain' class="w3-container w3-card-4 w3-light-grey w3-margin">
 <h4 title="Strongman Password Manager"><img src="image/favicon-32x32.png" alt="strongarm"> Strongman &trade; v<?=$smversion?>
  <a href="javascript:togAccordian('intro');"><i class="fa fa-question-circle-o" style="color:blue;"></i></a>
- <small><a href='/'>website</a></small>
+ <small><a href='/' target='_blank'>website</a></small>
 <span style="float:right; font-size:50%;">
 <input type="checkbox" id="enable" name="enable" <?=isset($_COOKIE["offline"]) ? "" : "checked";?>><label for="enable"> Online</label>
 </h4>
