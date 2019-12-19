@@ -1741,7 +1741,7 @@ function validateincr(ob) {
 <p>
   <label><strong>Password Computation Options</strong> <i class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;" onclick="togAccordian('optionsdiv');"></i></label><br>
 Characters:<br><input type="checkbox" id="lcase" name="lcase" value="1" checked>&nbsp;a-z &nbsp;<input type="checkbox" id="ucase" name="ucase" value="2" checked>&nbsp;A-Z &nbsp;
-<input type="checkbox" id="num" name="num" value="4" checked>&nbsp;0-9 &nbsp;<input type="checkbox" id="symb" name="symb" value="8" checked>&nbsp;symb<br>
+<input type="checkbox" id="num" name="num" value="4" checked>&nbsp;0-9 &nbsp;<input type="checkbox" id="symb" name="symb" value="8" checked>&nbsp;symb:<span style="line-height:90%; vertical-align: 100%;"><span style="position:absolute; padding-left:4px;"><small>!\&quot;#$%&amp;&apos;()*+,-./:<br>;&lt;=&gt;?@[\]^_`{|}~</small></span></span><br>
 Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" value="14" size="2" maxlength="2" min="4" max="35" onblur="validatelen(this);">
  Password No.&nbsp;<input class="w3-border w3-round" type="number" id="incr" name="incr" value="1" size="2" maxlength="2" min="1" max="99" onblur="validateincr(this);" title="Increment to calculate a new password">
 </p>
