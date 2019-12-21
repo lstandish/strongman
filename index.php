@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.32";
+$smversion = "1.33";
 ?>
 <!DOCTYPE html>
 <html>
@@ -660,11 +660,15 @@ $(function(){
 
 	$("#eyemaster").click(function() {
 		eyework();
-		$(this).focus();
+		if ($(".myeye").hasClass("fa-eye")) {
+			$('#fPassword').focus();
+		}
 	});
 	$("#eyecomp").click(function() {
 		eyework();
-		$(this).focus();
+		if ($(".myeye").hasClass("fa-eye")) {
+			$('#cPassword').focus();
+		}
 	});
 
 	$("#savegeneral").click(function() {
@@ -1189,17 +1193,21 @@ function myCopy(msg,id) {
 				iosCopy(copyText);
 			}
 		} else {
-
-			var ispass = 0;
-			if (id == "entry") copyText.value = copyText.value.trim();
-			copyText.select();
 			if (copyText.type == "password") {
-				ispass = 1;
-				copyText.type = "text";
-			}
-			document.execCommand("copy");
-			if (ispass) {
-				copyText.type = "password";
+				var el = document.createElement('textarea');
+				el.value = copyText.value;
+				el.setAttribute('readonly', '');
+				el.style.position = 'absolute';
+				el.style.left = '-9999px';
+				document.body.appendChild(el);
+				el.select();
+				document.execCommand('copy');
+				document.body.removeChild(el);
+				copyText.select();
+			} else {
+				if (id == "entry") copyText.value = copyText.value.trim();
+				copyText.select();
+				document.execCommand("copy");
 			}
 			if (msg) {
 				var color;
