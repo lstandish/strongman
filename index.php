@@ -1653,9 +1653,9 @@ function openselect() {
 }
 
 function validatelen(ob) {
-	if (ob.value < 4 || ob.value > 35) {
-		alert("Generated password length must be between 4 and 35");
-		if (ob.value < 4) ob.value = "4";
+	if (ob.value < 5 || ob.value > 35) {
+		alert("Generated password length must be between 5 and 35");
+		if (ob.value < 5) ob.value = "5";
 		else ob.value = "35";
 		ob.focus();
 	}
@@ -1750,7 +1750,7 @@ function alertSpecial() {
   <label><strong>Password Computation Options</strong> <i class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;" onclick="togAccordian('optionsdiv');"></i></label><br>
 Characters to Include:<br><input type="checkbox" id="lcase" name="lcase" value="1" checked>&nbsp;a-z &nbsp;<input type="checkbox" id="ucase" name="ucase" value="2" checked>&nbsp;A-Z &nbsp;
 <input type="checkbox" id="num" name="num" value="4" checked>&nbsp;0-9 &nbsp;<input type="checkbox" id="symb" name="symb" value="8" checked> symb <i class='fa fa-question-circle-o w3-large' style='color:blue;' onclick="alertSpecial();" title="Show symbols"></i><br>
-Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" value="14" maxlength="2" min="4" max="35" onblur="validatelen(this);" style="width: 3em;">
+Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" value="14" maxlength="2" min="5" max="35" onblur="validatelen(this);" style="width: 3em;">
  Incr No.&nbsp;<input class="w3-border w3-round" type="number" id="incr" name="incr" value="1" maxlength="2" min="1" max="99" onblur="validateincr(this);" title="Increment to calculate a new password" style="width: 3em;">
 </p>
 </div>
