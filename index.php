@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.34";
+$smversion = "1.35";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1726,6 +1726,7 @@ function alertSpecial() {
 <i class='fa fa-copy w3-large' onclick="myCopy('Password','cPassword');" title="Copy password to clipboard"></i>
 <i class='fa fa-navicon w3-large' onclick="togAccordian('optionsdiv');" title="Password Computation Options"></i>
   <i class='fa fa-book w3-large' onclick="togAccordian('notesdiv');" title="Show/hide secure notes"></i>
+<img src="image/clipboard-delete-button.png" title="Clear Clipboard" onclick="copyWork(' ');" style="position:relative; top:-3px;">
 <select name="categ" id="categ">
 </select>
  <a onclick="ajaxsavecat();" href="javascript:void(0);" id="catsavelink" title="Save category">save</a>
@@ -1761,7 +1762,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </div><br>
 
 <a href="javascript:togAccordian('settingsdiv');">Settings and Tools</a>
-<span style="float:right; line-height:90%;"><small>arm icon by <a target='_blank' href="https://www.freepik.com" target="_blank">Freepik</a><br>from <a target='_blank' href="https://www.flaticon.com/" target="_blank">www.flaticon.com</a><br>
+<span style="float:right; line-height:90%;"><small>arm+clipbrd icons by <a target='_blank' href="https://www.freepik.com" target="_blank">Freepik</a><br>from <a target='_blank' href="https://www.flaticon.com/" target="_blank">www.flaticon.com</a><br>
 <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>about Diceware</a> <a target='_blank' href='https://www.rempe.us/diceware/#eff'>generate</a></small></span>
 <div id="settingsdiv" class="w3-display w3-panel w3-leftbar w3-sand w3-hide w3-display-container">
   <i onclick="javascript:togAccordian('settingsdiv');" class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;"></i>
