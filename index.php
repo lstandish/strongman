@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.33";
+$smversion = "1.34";
 ?>
 <!DOCTYPE html>
 <html>
@@ -731,7 +731,7 @@ $(function(){
 
 	// clear out user data upon navigate away
 	window.onbeforeunload = function(event) {
-		myCopy("lock","cPassword");
+		lock();
 		return null;
 	};
 /*
@@ -1179,78 +1179,78 @@ function is_ios() {
 	return 0;
     }
 }
+
+function lock() {
+	hPriv="";
+	hPub="";
+	$("#entry").autocomplete("flushCache");
+	//lgs2
+	autoenable(false);
+	document.getElementById("lockstate").className="fa fa-lock w3-large";
+	if (version && version <10) {
+		showMsg("Cleared passwords, cannot clear clipboard automatically (Old IOS version).","w3-yellow");
+	} else {
+		copyWork(" ");
+//			iosCopy(copyText);
+		showMsg("Cleared master password, site password, and clipboard","w3-green");
+	}
+	document.getElementById("notes").value = "";
+	var x = document.getElementById("notesdiv");
+	x.className = x.className.replace(" w3-show", "");
+	document.getElementById("fPassword").value="";
+	document.getElementById("cPassword").value="";
+	document.getElementById("entry").value="";
+	document.getElementById("categ").value="0";
+	document.getElementById("accountdata").innerHTML="(Compute or Save a password in order to view account information.)";
+	document.getElementById("editcats").innerHTML="<em>You need to have entered a master password and generated at least one site password to edit category names.</em>";
+	document.getElementById("savesettings").disabled = true;
+//		document.getElementById("doaccnt").disabled = true;
+	document.getElementById("fPassword").focus();
+	gcatsw = gcats;
+	resetcats();
+	return null;
+}
+
 function myCopy(msg,id) {
 // id is always cPassword except when copying domain (entry) or username
 	var copyText = document.getElementById(id);
-	if (msg != "lock") {
 //		if ((id == "cPassword" || id == "username" || id == "entry") && !checkpass(copyText)) {
 //			return;
 //		}
-		if (version) {
-			if (version < 10) {
-				if (msg) showMsg("Old IOS version: manually copy password to clipboard.","w3-yellow");
-			} else {
-				iosCopy(copyText);
-			}
-		} else {
-			if (copyText.type == "password") {
-				var el = document.createElement('textarea');
-				el.value = copyText.value;
-				el.setAttribute('readonly', '');
-				el.style.position = 'absolute';
-				el.style.left = '-9999px';
-				document.body.appendChild(el);
-				el.select();
-				document.execCommand('copy');
-				document.body.removeChild(el);
-				copyText.select();
-			} else {
-				if (id == "entry") copyText.value = copyText.value.trim();
-				copyText.select();
-				document.execCommand("copy");
-			}
-			if (msg) {
-				var color;
-				if (msg == "Password") color = "w3-grey";
-				else color = (id != "cPassword" || msg == "Custom Password") ? "w3-green" : "w3-blue";
-				showMsg(msg + " Copied to Clipboard",color);
-			}
-		}
+	if (version && version < 10) {
+		if (msg) showMsg("Old IOS version: manually copy password to clipboard.","w3-yellow");
 	} else {
-		copyText.value="";
+		if (id == "entry") copyText.value = copyText.value.trim();
+		copyWork(copyText.value);
 		copyText.select();
-		hPriv="";
-		hPub="";
-		$("#entry").autocomplete("flushCache");
-		//lgs2
-		autoenable(false);
-		document.getElementById("lockstate").className="fa fa-lock w3-large";
-		if (version) {
-			if (version <10) {
-				showMsg("Cleared passwords, cannot clear clipboard automatically (Old IOS version).","w3-yellow");
-			} else {
-				iosCopy(copyText);
-			}
-		} else {
-			document.execCommand("copy");
-			showMsg("Cleared master password, site password, and clipboard","w3-green");
+		if (msg) {
+			var color;
+			if (msg == "Password") color = "w3-grey";
+			else color = (id != "cPassword" || msg == "Custom Password") ? "w3-green" : "w3-blue";
+			showMsg(msg + " Copied to Clipboard",color);
 		}
-		document.getElementById("notes").value = "";
-		var x = document.getElementById("notesdiv");
-		x.className = x.className.replace(" w3-show", "");
-		document.getElementById("fPassword").value="";
-		document.getElementById("username").value="";
-		document.getElementById("entry").value="";
-		document.getElementById("categ").value="0";
-		document.getElementById("accountdata").innerHTML="(Compute or Save a password in order to view account information.)";
-		document.getElementById("editcats").innerHTML="<em>You need to have entered a master password and generated at least one site password to edit category names.</em>";
-		document.getElementById("savesettings").disabled = true;
-//		document.getElementById("doaccnt").disabled = true;
-		document.getElementById("fPassword").focus();
-		gcatsw = gcats;
-		resetcats();
 	}
 }
+
+function copyWork(msg) {
+	var el = document.createElement('textarea');
+	el.value = msg;
+//	el.setAttribute('readonly', false);
+	el.style.position = 'absolute';
+	el.style.left = '-9999px';
+	document.body.appendChild(el);
+	if (version) {
+		var range = document.createRange();
+		range.selectNodeContents(el);
+		var s = window.getSelection();
+		s.removeAllRanges();
+		s.addRange(range);
+		el.setSelectionRange(0, 999); // A big number, to cover anything that could be inside the element.
+	} else el.select();
+	document.execCommand('copy');
+	document.body.removeChild(el);
+}
+
 function autoClip(msg) {
 	if (document.getElementById("manualcopy").checked) {
 		if (msg) {
@@ -1648,9 +1648,6 @@ function getCookie(name) {
 function eraseCookie(name) {   
     document.cookie = name+'=; Max-Age=-99999999;';  
 }
-function lock() {
-	myCopy("lock","cPassword");
-}
 function openselect() {
 	if (!document.getElementById("matchon").checked && document.getElementById("enable").checked) {
 		var val = document.getElementById("entry").value;
@@ -1682,7 +1679,7 @@ function alertSpecial() {
     var msg = "At least one member of each selected character class will be present in the computed password.\n\n";
     msg += "Symbols are chosen from the following 32 special characters:\n";
     msg += $('<span/>').html('!&quot;#$%&amp;&apos;()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~').text();
-    msg += "\nTip: If a site rejects one or more of these symbols in a computed password, edit out the disallowed characters and save the password.";
+    msg += "\nTip: If a site rejects one or more of these symbols in a computed password, edit out the disallowed characters and save the password, which switches from computed to encrypted mode.";
     alert(msg);
 }
 </script>
