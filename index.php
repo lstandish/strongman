@@ -1167,13 +1167,6 @@ function lock() {
 	//lgs2
 	autoenable(false);
 	document.getElementById("lockstate").className="fa fa-lock w3-large";
-	if (version && version <10) {
-		showMsg("Cleared passwords, cannot clear clipboard automatically (Old IOS version).","w3-yellow");
-	} else {
-		copyWork(" ");
-//			iosCopy(copyText);
-		showMsg("Cleared master password, site password, and clipboard","w3-green");
-	}
 	document.getElementById("notes").value = "";
 	var x = document.getElementById("notesdiv");
 	x.className = x.className.replace(" w3-show", "");
@@ -1185,6 +1178,7 @@ function lock() {
 	document.getElementById("editcats").innerHTML="<em>You need to have entered a master password and generated at least one site password to edit category names.</em>";
 	document.getElementById("savesettings").disabled = true;
 //		document.getElementById("doaccnt").disabled = true;
+	showMsg("Cleared master and site passwords. <strong>You may want to clear clipboard!</strong>","w3-green");
 	document.getElementById("fPassword").focus();
 	gcatsw = gcats;
 	resetcats();
@@ -1692,7 +1686,7 @@ function alertSpecial() {
 </div>
   <p>
   <label><strong>Master Password</strong></label> <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('password');" title="Password Help"></i>
-<i class="fa fa-lock w3-large" onclick="lock();" style="color:goldenrod;" title="Clear master password, site password, and clipboard" id="lockstate"></i>
+<i class="fa fa-lock w3-large" onclick="lock();" style="color:goldenrod;" title="Clear master password and site password" id="lockstate"></i>
 <i class="myeye w3-large fa <?=isset($_COOKIE["focushidepwd"]) ? 'fa-eye-slash" title="password always hidden"' : 'fa-eye" title="show password on focus"';?> id="eyemaster"></i>
 <span class="w3-row">
 <span class="w3-col s11">
@@ -1768,7 +1762,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
   <i onclick="javascript:togAccordian('settingsdiv');" class="fa fa-close w3-display-topright" style="padding-top:5px; padding-right:5px;"></i>
 <p>
 <label><strong>General Settings</label></strong><br>
-<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master password after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999" disabled> secs inactivity.<br>
+<input type="checkbox" id="autoclear" name="autoclear" value="0"> Auto clear master and site passwords after <input type="number" id="autosecs" name="autosecs" value="600" size="4" maxlength="4" min="60" max="9999" disabled> secs inactivity.<br>
 <input type="checkbox" id="permitnodw" name="permitnodw" value="1"> Permit non-Diceware master passwords.
 </p>
 <button id="savegeneral" class="w3-button w3-blue w3-small w3-round">Save General Settings</button>
