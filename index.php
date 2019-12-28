@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.35";
+$smversion = "1.36";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1684,6 +1684,7 @@ function alertSpecial() {
 </ol>
 <a href="javascript:togAccordian('intro');" >Hide</a>
 </div>
+<form autocomplete="off">
   <p>
   <label><strong>Master Password</strong></label> <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('password');" title="Password Help"></i>
 <i class="fa fa-lock w3-large" onclick="lock();" style="color:goldenrod;" title="Clear master password and site password" id="lockstate"></i>
@@ -1801,6 +1802,7 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <label><strong>Account Information</strong><br>
 <div id="accountdata">(Compute or save a password in order to view account information.)</div>
 </div>
+</form>
 </div>
 <script>
 
