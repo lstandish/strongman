@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.37";
+$smversion = "1.38";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1381,15 +1381,14 @@ function regexpass (msg) {
 	var dw=/^\s*[a-zA-Z]+(?:(-| +)[a-zA-Z]+){5,}\S*?\s*$/;
 	var dwnosp=/^\s*[a-zA-Z]{40,}\S*?\s*$/;
 	var accepted = 0;
-	var fail = " provided does not pass our strength test.</h3>";
 	if (!dw.test(ob.value) && !dwnosp.test(ob.value)) {
 		if (document.getElementById("permitnodw").checked) {
 			if (document.getElementById("enable").checked) msg += "<h4>Non-Diceware passwords permitted via General Settings (not recommended)</h4>";
+			accepted = 1;
 			if (re.test(ob.value)) {
-				accepted = 1;
-				if (document.getElementById("enable").checked) msg += "<p>The provided password passes our non-Diceware password checker, but unless your password was chosen randomly (i.e., by a machine, dice roll, etc.), it will NOT be secure. If you created the password yourself by some scheme you think is clever, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p><p>On the other hand, if you provided a truly random mixed-character password, you must have an amazing memory. Please proceed.</p>";
-			} else 	msg += "<h3>The password" + fail +"<p>A non-Diceware master password should be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,\<.\>.</p><p>Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
-		} else if (document.getElementById("enable").checked) msg += "<h3>The Diceware passphrase" + fail + "<p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>An acceptable Diceware passphrase consists of 6+ random words. If you run the words together, the total length should be at least 24.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). The requirement for a Diceware passphrase can be overridden in Strongman General Settings.</p>";
+				if (document.getElementById("enable").checked) msg += "<p>The provided password appears strong. It should be random, not invented to be easy to remember. If you did that, you should STOP and go <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read about</a> easy-to-memorize Diceware passphrases</a>.</p>";
+			} else 	msg += "<h3>Warning: the new password appears weak.</h3><p>We recommend that a non-Diceware master password be at least 9 characters long, with at least one uppercase, one lowercase, and one special character from !@#$%^&*()\-_=+{};:,\<.\>.</p><p>Since random mixed case passwords are too hard to memorize, please reconsider using <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>Diceware</a>.</p>";
+		} else if (document.getElementById("enable").checked) msg += "<h3>Your password fails the minimum Diceware passphrase criteria:</h3>(1) It should consist of 6+ random words.<br>(2) If you run the words together, the total length should be at least 24.</p><p>If you don't know what Diceware is, <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>read this</a>.</p><p>By default Strongman <strong>requires</strong> a 6+ word passphrase, presumably Diceware. (Generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>). This requirement can be overridden in Strongman General Settings.</p>";
 	} else {
 		if (document.getElementById("enable").checked) msg += "<p>It looks like you chose a 6+ word passphrase. We hope this is a Diceware type passphrase (generate <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>) and not a sentence or word combination you thought up. If you invented this passphrase <strong>yourself</strong>, it is probably NOT secure.";
 		accepted = 1;
