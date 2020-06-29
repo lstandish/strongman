@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.38";
+$smversion = "1.39";
 ?>
 <!DOCTYPE html>
 <html>
@@ -89,6 +89,7 @@ $(function(){
 					return;
 				}
 				var res = item.data.match(/(.*?): (.*?) (#|\d*d)/);
+//				var res = item.data.match(/(.*?): ([a-zA-Z0-9@_!~-^*()\[\]{},.<>\/?;: ]*?) (#|\d*d)/);
 				var notes="";
 				if (document.getElementById("matchdel").checked) {
 					document.getElementById("entry").value = "";
@@ -1518,17 +1519,18 @@ function verifypp() {
 	}
 }
 function validateuserdom(ob) {
-	var re = /[?{}|&~!()^"\\=]+/;
 	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"\\=";
 	if (ob.id == "entry") {
+		var re = /[?{}|&~!()^"\\=]+/;
 		if (re.test(ob.value)) {
 			alert(msg);
 			ob.value = "";
 			return false;
 		} else ob.value=ob.value.toLowerCase();
 	} else if (ob.id == "username") {
+		var re = /[?{}|&~!()^"\\=\s]+/;
 		if (re.test(ob.value)) {
-			alert(msg);
+			alert(msg + " and space.");
 			ob.value = "";
 //			ob.focus();
 			return false;
