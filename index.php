@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.39";
+$smversion = "1.40";
 ?>
 <!DOCTYPE html>
 <html>
@@ -88,8 +88,10 @@ $(function(){
 					document.getElementById("username").value = "";
 					return;
 				}
-				var res = item.data.match(/(.*?): (.*?) (#|\d*d)/);
-//				var res = item.data.match(/(.*?): ([a-zA-Z0-9@_!~-^*()\[\]{},.<>\/?;: ]*?) (#|\d*d)/);
+//				var res = item.data.match(/(.*?): (.*?) (#|\d*d)/);
+//				var res = item.data.match(/(.*?): ([a-zA-Z0-9@_-*\[\],.<>\/;:` ]*?) (#|\d*d)/);
+				var res = item.data.match(/(.*?): ([^?{}|&~!()^"\\=#]*) (#|\d*d)/);
+//  ?{}|&~!()^\"\\=
 				var notes="";
 				if (document.getElementById("matchdel").checked) {
 					document.getElementById("entry").value = "";
@@ -1524,14 +1526,14 @@ function validateuserdom(ob) {
 		var re = /[?{}|&~!()^"\\=]+/;
 		if (re.test(ob.value)) {
 			alert(msg);
-			ob.value = "";
+//			ob.value = "";
 			return false;
 		} else ob.value=ob.value.toLowerCase();
 	} else if (ob.id == "username") {
-		var re = /[?{}|&~!()^"\\=\s]+/;
+		var re = /[?{}|&~!()^"\\=#]+/;
 		if (re.test(ob.value)) {
-			alert(msg + " and space.");
-			ob.value = "";
+			alert(msg + "#");
+//			ob.value = "";
 //			ob.focus();
 			return false;
 		}
