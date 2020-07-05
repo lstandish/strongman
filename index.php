@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.40";
+$smversion = "1.41";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1681,8 +1681,8 @@ function alertSpecial() {
 <li>Enter the master passphrase</li>
 <li>Start typing the domain name in the 'Domain' field. If you have used this password before, you will see the domain-username in a dropdown list. Click to choose it. You're done; the password is automatically copied to the clipboard for you (unless you've disabled that in the settings menu.)</li>
 <li>For a new entry, just enter the domain and username.</li>
-<li>Change the password computation options for this username if necessary (use the '☰' button), then click the "Compute" button.</li>
-<li>The password is calculated and (optionally) copied to clipboard. The next time you need this password, you can select it from the dropdown list.</li>
+<li>Change the password computation options for this username if necessary (use the '☰' button), then click the "Compute/Save" button.</li>
+<li>The password is computed and (optionally) copied to clipboard. If online, the "password profile" (domain, username, and computation options settings) are saved to the server. The next time you need this password, you can select it from the dropdown list.</li>
 <li>If you want to modify or replace the computed password, just edit it and click the "Save" button. This "custom" password will be AES256-encrypted and stored on the server.</li>
 </ol>
 <a href="javascript:togAccordian('intro');" >Hide</a>
@@ -1742,8 +1742,8 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 <input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='password' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4" maxlength="200">
 </span>
 <span class="w3-col s4" style="margin: 8px 0 0 3px;">
-  <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options">Compute</button>
-  <button class="w3-button w3-small w3-green w3-round w3-ripple w3-padding fa" id="savebut" onclick="savepass(this);" title="Save custom password using AES256 encryption" disabled>Save</button>
+  <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options. Save 'profile' to server if online">Compute/Save</button>
+  <button class="w3-button w3-small w3-green w3-round w3-ripple w3-padding fa" id="savebut" onclick="savepass(this);" title="Save custom password to server using AES256 encryption" disabled>Save</button>
 </span>
 </span>
   </p>
