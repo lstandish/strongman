@@ -1135,7 +1135,7 @@ function help(id) {
 	} else if (id == 'password') {
 		msg = "<p>The 'master password' protects every password for all your sites. It is very important to choose it carefully. It should be a <i>random</i> password or passphrase, not something you invent to make it easy to remember.</p><p>Since memorizing a minimum 9 character random password is very difficult, we instead recommend Diceware passphrases. They are extremely secure, yet also easy to memorize. Read more about Diceware <a target='_blank' href='https://theintercept.com/2015/03/26/passphrases-can-memorize-attackers-cant-guess/'>here</a>. Diceware passphrases can be generated online <a target='_blank' href='https://www.rempe.us/diceware/#eff'>here</a>.</p><p>Strongman now <strong>requires</strong> a 6+ word master passphrase, unless overridden by a setting (see 'Settings and Tools/General Settings/Permit non-Diceware master passwords' at the bottom of the app).</p>";
 	} else if (id == 'passtype') {
-		msg = "<p>The 'Compute/Save' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button). This information (sans the master password) is stored to the server.</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password (see below).</p><p>Computed passwords are <strong>not</strong> stored on the server; they are computed by your browser.</p>If you want to use your own password or modify a computed password, click the edit button, or simply click into the Password field and make your changes. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
+		msg = "<p>The 'Compute' button calculates a unique password based on the master password, domain, and username. It uses the characters and length selected in the options menu (click the '☰' button). This information (sans the master password) is stored to the server.</p><p>To change a computed password, increment the password number (options menu), or switch to a custom encrypted password (see below).</p><p>Computed passwords are <strong>not</strong> stored on the server; they are computed by your browser.</p>If you want to use your own password or modify a computed password, click the edit button, or simply click into the Password field and make your changes. When done, click the 'Save' button, which will activate.</p><p>Custom passwords are encrypted using your master password, in your browser, <strong>before</strong> sending to the server. They are as secure as the calculated ones.</p>";
 	} else if (id == 'accountact') {
 		msg = "<p>Use 'Import passwords from another Strongman account' to <strong>change the master password,</strong> as follows:</p><ol><li>Enter the new master password and click 'Submit'.</li><li>Do the password import, specifying the master password of the old account.</li><li>After the passwords and notes are imported, you can delete the old Strongman account via the 'Remove Strongman Account' option.</li></ol>";
 	}
@@ -1681,7 +1681,7 @@ function alertSpecial() {
 <li>Enter the master passphrase</li>
 <li>Start typing the domain name in the 'Domain' field. If you have used this password before, you will see the domain-username in a dropdown list. Click to choose it. You're done; the password is automatically copied to the clipboard for you (unless you've disabled that in the settings menu.)</li>
 <li>For a new entry, just enter the domain and username.</li>
-<li>Change the password computation options for this username if necessary (use the '☰' button), then click the "Compute/Save" button.</li>
+<li>Change the password computation options for this username if necessary (use the '☰' button), then click the "Compute" button.</li>
 <li>The password is computed and (optionally) copied to clipboard. If online, the "password profile" (domain, username, and computation options settings) are saved to the server. The next time you need this password, you can select it from the dropdown list.</li>
 <li>If you want to modify or replace the computed password, just edit it and click the "Save" button. This "custom" password will be AES256-encrypted and stored on the server.</li>
 </ol>
@@ -1738,11 +1738,11 @@ Length&nbsp;<input class="w3-border w3-round" type="number" id="len" name="len" 
 </p>
 </div>
 <span class="w3-row">
-<span class="w3-col s6">
+<span class="w3-col s7">
 <input class="w3-input w3-border w3-round icon-input" name="cPassword" id='cPassword' type='password' placeholder="computed or custom password" onkeyup="document.getElementById('savebut').disabled=false;" tabindex="4" maxlength="200">
 </span>
-<span class="w3-col s5" style="margin: 8px 0 0 3px;">
-  <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options. Save 'profile' to server if online">Compute/Save</button>
+<span class="w3-col s4" style="margin: 8px 0 0 3px;">
+  <button class="w3-button w3-small w3-blue w3-round w3-ripple w3-padding fa" id="compute" onclick="compute(this);" title="Compute unique password based on master password, domain, username and options. Save 'profile' to server if online">Compute</button>
   <button class="w3-button w3-small w3-green w3-round w3-ripple w3-padding fa" id="savebut" onclick="savepass(this);" title="Save custom password to server using AES256 encryption" disabled>Save</button>
 </span>
 </span>
