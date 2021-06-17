@@ -1,10 +1,10 @@
 <?php
 /*
 Strongman Password Manager
-Copyright 2019 Lloyd Standish
-contact: lloyd@crnatural.net
+Copyright 2021 Lloyd Standish
+contact: lloyd@standish.xyz
 source: https://github.com/lstandish/strongman/
-website: https://strongman.tech
+website: https://strongman.standish.site
 
 This file is part of Strongman.
 
@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.42";
+$smversion = "1.43";
 ?>
 <!DOCTYPE html>
 <html>
@@ -42,12 +42,12 @@ $smversion = "1.42";
 <link rel="icon" type="image/png" href="image/favicon-16x16.png" sizes="16x16">
 <link rel="icon" type="image/png" href="image/favicon-32x32.png" sizes="32x32">
 <script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/jshashes-1.0.7/hashes.min.js"></script>
-<script type="text/javascript" src="js/aes-js-master/index.js"></script>
+<script type="text/javascript" src="js/jshashes/hashes.min.js"></script>
+<script type="text/javascript" src="js/aes-js/index.js"></script>
 <script type="text/javascript" src="js/jquery-autocomplete.js"></script>
-<script type="text/javascript" src="js/javascript-biginteger-master/biginteger.js"></script>
-<script type="text/javascript" src="js/moment.min.js"></script>
-<script type="text/javascript" src="js/PapaParse-5.0.0/papaparse.min.js"></script>
+<script type="text/javascript" src="js/javascript-biginteger/lib/impl/array.js"></script>
+<script type="text/javascript" src="js/moment/min/moment.min.js"></script>
+<script type="text/javascript" src="js/PapaParse/papaparse.min.js"></script>
 <script type="text/javascript">
 // globals
 use_aes = true;
@@ -771,7 +771,8 @@ var _characterSubsets = {
 lcase: "abcdefghijklmnopqrstuvwxyz",
 ucase: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 num: "0123456789",
-symb: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+//symb: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+symb: "!~#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 };
 var rules;
 var setOfCharacters;
@@ -1582,8 +1583,13 @@ function checkpass(ob) {
 		return;
 	}
 	else if (ob.id == "savebut") {
-		if (document.getElementById('cPassword').value.trim() == "") {
+		var pass = document.getElementById('cPassword').value;
+		if (pass.trim() == "") {
 			alert("No password to save!");
+			return false;
+		}
+		else if (pass.includes('"')) {
+			alert("Sorry, the double quote is the only character not permitted in site passwords");
 			return false;
 		}
 	}
@@ -1655,7 +1661,7 @@ function alertSpecial() {
 //symb: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
     var msg = "At least one member of each selected character class will be present in the computed password.\n\n";
     msg += "Symbols are chosen from the following 32 special characters:\n";
-    msg += $('<span/>').html('!&quot;#$%&amp;&apos;()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~').text();
+    msg += $('<span/>').html('!#$%&amp;&apos;()*+,-./:;&lt;=&gt;?@[\\]^_`{|}~').text();
     msg += "\nTip: If a site rejects one or more of these symbols in a computed password, edit out the disallowed characters and save the password, which switches from computed to encrypted mode.";
     alert(msg);
 }
@@ -1714,7 +1720,7 @@ function alertSpecial() {
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
   <i class='fa fa-copy w3-large' onclick="myCopy('Username','username');" title="Copy username to clipboard"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" onchange="setnotes(''); document.getElementById('incr').value='1';" tabindex="3" maxlength="70">
+  <input class="w3-input w3-border w3-round icon-input" name="username" id='username' type='text' placeholder="Enter a username" onfocus="checkpass(this);" onblur="validateuserdom(this);" document.getElementById('incr').value='1';" tabindex="3" maxlength="70">
   </p>
   <p>
   <label><strong>Password</strong></label><br>

@@ -1,0 +1,15 @@
+[submodule "js/aes-js"]
+	path = js/aes-js
+	url = git://github.com/ricmoo/aes-js.git
+[submodule "js/PapaParse"]
+	path = js/PapaParse
+	url = git://github.com/mholt/PapaParse.git
+[submodule "js/javascript-biginteger"]
+	path = js/javascript-biginteger
+	url = git://github.com/silentmatt/javascript-biginteger.git
+[submodule "js/jshashes"]
+	path = js/jshashes
+	url = git://github.com/h2non/jshashes.git
+[submodule "js/moment"]
+	path = js/moment
+	url = git://github.com/moment/moment.git
