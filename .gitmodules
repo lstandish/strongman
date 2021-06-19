@@ -13,3 +13,6 @@
 [submodule "js/moment"]
 	path = js/moment
 	url = git://github.com/moment/moment.git
+[submodule "js/autocomplete"]
+	path = js/autocomplete
+	url = git://github.com/jbdemonte/autocomplete.git
