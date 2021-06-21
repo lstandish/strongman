@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.43";
+$smversion = "1.44";
 ?>
 <!DOCTYPE html>
 <html>
@@ -41,13 +41,13 @@ $smversion = "1.43";
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="icon" type="image/png" href="image/favicon-16x16.png" sizes="16x16">
 <link rel="icon" type="image/png" href="image/favicon-32x32.png" sizes="32x32">
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/jshashes/hashes.min.js"></script>
-<script type="text/javascript" src="js/aes-js/index.js"></script>
-<script type="text/javascript" src="js/jquery-autocomplete.js"></script>
-<script type="text/javascript" src="js/javascript-biginteger/lib/impl/array.js"></script>
-<script type="text/javascript" src="js/moment/min/moment.min.js"></script>
-<script type="text/javascript" src="js/PapaParse/papaparse.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/hashes.min.js"></script>
+<script type="text/javascript" src="js/aes-js.min.js"></script>
+<script type="text/javascript" src="js/my-jquery-autocomplete.min.js"></script>
+<script type="text/javascript" src="js/array.min.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
+<script type="text/javascript" src="js/papaparse.min.js"></script>
 <script type="text/javascript">
 // globals
 use_aes = true;

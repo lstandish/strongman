@@ -1,18 +1,18 @@
-[submodule "js/aes-js"]
-	path = js/aes-js
+[submodule "js-source/aes-js"]
+	path = js-source/aes-js
 	url = git://github.com/ricmoo/aes-js.git
-[submodule "js/PapaParse"]
-	path = js/PapaParse
+[submodule "js-source/PapaParse"]
+	path = js-source/PapaParse
 	url = git://github.com/mholt/PapaParse.git
-[submodule "js/javascript-biginteger"]
-	path = js/javascript-biginteger
+[submodule "js-source/javascript-biginteger"]
+	path = js-source/javascript-biginteger
 	url = git://github.com/silentmatt/javascript-biginteger.git
-[submodule "js/jshashes"]
-	path = js/jshashes
+[submodule "js-source/jshashes"]
+	path = js-source/jshashes
 	url = git://github.com/h2non/jshashes.git
-[submodule "js/moment"]
-	path = js/moment
+[submodule "js-source/moment"]
+	path = js-source/moment
 	url = git://github.com/moment/moment.git
-[submodule "js/autocomplete"]
-	path = js/autocomplete
+[submodule "js-source/autocomplete"]
+	path = js-source/autocomplete
 	url = git://github.com/jbdemonte/autocomplete.git
