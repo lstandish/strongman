@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.44";
+$smversion = "1.45";
 ?>
 <!DOCTYPE html>
 <html>
@@ -818,8 +818,9 @@ function setoffline() {
 	document.getElementById("doaccnt").disabled = true;
 //	document.getElementById("mergepass").disabled = true;
 	autoenable(false);
-	$("#entry").autocomplete("matchoff");
-	document.getElementById("matchon").checked = false;
+// lgs Jan. 22 2022
+//	$("#entry").autocomplete("matchoff");
+//	document.getElementById("matchon").checked = false;
 	document.getElementById("matchon").disabled = true;
 	document.getElementById("matchdel").checked = false;
 	document.getElementById("matchdel").disabled = true;
