@@ -1,7 +1,7 @@
 <?php
 /*
 Strongman Password Manager
-Copyright 2021 Lloyd Standish
+Copyright 2022 Lloyd Standish
 contact: lloyd@standish.xyz
 source: https://github.com/lstandish/strongman/
 website: https://strongman.standish.site
@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.45";
+$smversion = "1.46";
 ?>
 <!DOCTYPE html>
 <html>
@@ -68,7 +68,7 @@ $(function(){
 	$("#entry").autocomplete({
 		ajax: {
 			url: "ajax/ajax-json-list.php", // change the ajax post url
-			timeout: 1000,
+			timeout: 2000,
 			error: function(x, t, m) {
 				alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 				document.getElementById("enable").checked = false;
@@ -242,7 +242,7 @@ $(function(){
 			async: true,
 			dataType: 'json',
 			data: { hPass: JSON.stringify(hPub), settings: JSON.stringify(cursettings), cats: JSON.stringify(gcatsw) },
-			timeout: 1000,
+			timeout: 2000,
 			error: function(x, t, m) {
 				alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 				document.getElementById("enable").checked = false;
@@ -300,7 +300,7 @@ $(function(){
 				async: true,
 				dataType: 'json',
 				data: { hPass: JSON.stringify(sPub) },
-				timeout: 1000,
+				timeout: 2000,
 				error: function(x, t, m) {
 					alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 					document.getElementById("enable").checked = false;
@@ -450,7 +450,7 @@ $(function(){
 							async: true,
 							dataType: 'json',
 							data: { hPass: JSON.stringify(hPub), check: JSON.stringify(0), entries: JSON.stringify(resultary) },
-							timeout: 1000,
+							timeout: 2000,
 							error: function(x, t, m) {
 								alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 								document.getElementById("enable").checked = false;
@@ -489,7 +489,7 @@ $(function(){
 			async: true,
 			dataType: 'json',
 			data: { hPass: sPub },
-			timeout: 1000,
+			timeout: 2000,
 			error: function(x, t, m) {
 				alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 				document.getElementById("enable").checked = false;
@@ -611,7 +611,7 @@ $(function(){
 						async: true,
 						dataType: 'json',
 						data: { hPass: JSON.stringify(hPub), check: JSON.stringify(0), entries: JSON.stringify(resultary) },
-						timeout: 1000,
+						timeout: 2000,
 						error: function(x, t, m) {
 							alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 							document.getElementById("enable").checked = false;
@@ -941,7 +941,7 @@ function ajaxsave(cipher,checkexisting,incr) {
 		async: true,
 		dataType: 'json',
 		data: { hPass: JSON.stringify(hPub), check: JSON.stringify(checkexisting), entries: JSON.stringify(aentry)},
-		timeout: 1000,
+		timeout: 2000,
 		error: function(x, t, m) {
 			alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 			document.getElementById("enable").checked = false;
@@ -1023,7 +1023,7 @@ function ajaxsavenotes(checkexisting) {
 		async: true,
 		dataType: 'json',
 		data: { hPass: JSON.stringify(hPub), user: JSON.stringify(user), domain: JSON.stringify(domain), notes: JSON.stringify(notes), check: JSON.stringify(checkexisting) },
-		timeout: 1000,
+		timeout: 2000,
 		error: function(x, t, m) {
 			alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 			document.getElementById("enable").checked = false;
@@ -1069,7 +1069,7 @@ function ajaxsavecat() {
 		async: true,
 		dataType: 'json',
 		data: { hPass: JSON.stringify(hPub), user: JSON.stringify(user), domain: JSON.stringify(domain), cat: JSON.stringify(categ) },
-		timeout: 1000,
+		timeout: 2000,
 		error: function(x, t, m) {
 			alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 			document.getElementById("enable").checked = false;
@@ -1415,7 +1415,7 @@ function hashpass() {
 				async: true,
 				dataType: 'json',
 				data: { hPass: JSON.stringify(hPub) },
-				timeout: 1000,
+				timeout: 2000,
 				error: function(x, t, m) {
 					alert("No Internet connection. Entering offline mode. Tic 'Online' to try again for an Internet connection.");
 					document.getElementById("enable").checked = false;
