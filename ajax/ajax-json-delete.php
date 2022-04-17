@@ -28,7 +28,7 @@ This file is part of Strongman.
     $datapath = dirname(__FILE__,2) . "/data-source";
     if (file_exists("$datapath/$hashPass")) {
 	$config_data = parse_ini_file("$datapath/$hashPass",true);
-file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","old account info: ".print_r($config_data,true) . "\n");
+//file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","old account info: ".print_r($config_data,true) . "\n");
 	$account = array_shift($config_data);
 	unset($config_data[$domain][$user]);
 	ksort($config_data);
@@ -42,8 +42,7 @@ file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","old accou
 			}
 		}
 	}
-file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","new account info: ".print_r($config_data,true) . "\n",FILE_APPEND);
-#file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","new account info: ".print_r($config_data,true) . "\n",FILE_APPEND);
+//file_put_contents ( "/var/www/lloyd/passwords/data-source/mytest.txt","new account info: ".print_r($config_data,true) . "\n",FILE_APPEND);
 	file_put_contents("$datapath/$hashPass", $new_content);
     } else $retval = "entry not found";
     header("Content-Type: text/json; charset=UTF-8;");
