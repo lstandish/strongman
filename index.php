@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.46";
+$smversion = "1.47";
 ?>
 <!DOCTYPE html>
 <html>
@@ -374,7 +374,8 @@ $(function(){
 						}
 						var arraylen = ajresult.length;
 						var resultary = [];
-						var re = /[?{}|&~!()^"\\=]+/;
+						var re_u = /[?{}|&~!()^"\\=]+/;
+						var re_d = /[?{}|&~!()^"\\= ]+/;
 						var skipped = "";
 						outerloop:
 						for (var i=0; i<arraylen; i++) {
@@ -393,7 +394,7 @@ $(function(){
 									continue outerloop;
 								}
 							}
-							if (re.test(suser) || re.test(sdomain)) {
+							if (re_u.test(suser) || re_d.test(sdomain)) {
 								skipped += sdomain + '/' + suser + ": Illegal characters found in username or domain\n";
 								continue;
 							}
@@ -859,6 +860,8 @@ function compute(ob) {
 	if (!checkpass(ob)) {
 		return;
 	}
+	if (!validateuserdom(document.getElementById("entry"))) return;
+	if (!validateuserdom(document.getElementById("username"))) return;
 	var incr = document.getElementById("incr").value;
 	setpagerules();
 	document.getElementById("cPassword").value = computePass(document.getElementById("fPassword").value.trim() + document.getElementById("entry").value.trim() + document.getElementById("username").value.trim() + incr,document.getElementById("len").value);
@@ -875,6 +878,8 @@ function hexToBytes(hex) {
 }
 */
 function savepass(butob) {
+	if (!validateuserdom(document.getElementById("entry"))) return;
+	if (!validateuserdom(document.getElementById("username"))) return;
 	if (checkpass(butob)) {
 		if (!document.getElementById("enable").checked) {
 			alert("You can't save custom passwords in offline mode. To try for an Internet connection, tic the 'Online' checkbox");
@@ -1523,19 +1528,19 @@ function verifypp() {
 	}
 }
 function validateuserdom(ob) {
-	var msg = "The following characters are not permitted in usernames and domain: ?{}|&~!()^\"\\=";
+	var fname = (ob.id == "entry") ? "domain" : "username";
+	var msg = "The following characters are not permitted in " + fname + ": ?{}|&~!()^\"\\=";
 	if (ob.id == "entry") {
-		var re = /[?{}|&~!()^"\\=]+/;
+		var re = /[?{}|&~!()^"\\= ]+/;
 		if (re.test(ob.value)) {
-			alert(msg);
-//			ob.value = "";
+			alert(msg + " and space");
+//			ob.focus();
 			return false;
 		} else ob.value=ob.value.toLowerCase();
 	} else if (ob.id == "username") {
 		var re = /[?{}|&~!()^"\\=#]+/;
 		if (re.test(ob.value)) {
 			alert(msg + "#");
-//			ob.value = "";
 //			ob.focus();
 			return false;
 		}
