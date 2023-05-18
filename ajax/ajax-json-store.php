@@ -1,10 +1,10 @@
 <?php
 /*
 Strongman Password Manager
-Copyright 2019 Lloyd Standish
+Copyright 2023 Lloyd Standish
 contact: lloyd@crnatural.net
 source: https://github.com/lstandish/strongman/
-website: https://strongman.tech
+website: https://strongman.standish.site
 
 This file is part of Strongman.
 

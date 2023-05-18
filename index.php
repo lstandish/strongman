@@ -1,8 +1,8 @@
 <?php
 /*
 Strongman Password Manager
-Copyright 2022 Lloyd Standish
-contact: lloyd@standish.xyz
+Copyright 2023 Lloyd Standish
+contact: lloyd@standishco.com
 source: https://github.com/lstandish/strongman/
 website: https://strongman.standish.site
 
@@ -27,7 +27,7 @@ This file is part of Strongman.
 header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
 header("Pragma: no-cache"); // HTTP 1.0.
 header("Expires: 0"); // Proxies
-$smversion = "1.47";
+$smversion = "1.48";
 ?>
 <!DOCTYPE html>
 <html>
@@ -1721,7 +1721,7 @@ function alertSpecial() {
 <i class="fa fa-refresh w3-large" style="color:blue;" onclick="$('#entry').autocomplete('flushCache'); alert('Domain/username cache has been cleared.');" title="Refresh domain/username password list from server"></i>
 <i class='fa fa-copy w3-large' onclick="myCopy('Domain','entry');" title="Copy domain to clipboard"></i>
 <i class="fa fa-question-circle-o w3-large" style="color:blue;" onclick="help('filter');"></i>
-  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" onfocusout="validateuserdom(this);" tabindex="2" maxlength="100">
+  <input class="w3-input w3-border w3-round icon-input" name="domainUser" id='entry' type='text' title="Green background means password profiles are available" placeholder="Enter a domain" onclick="checkpass(this);" tabindex="2" maxlength="100">
 </p>
   <p>
   <label class="tooltip"><strong>Username</strong><span class="tooltiptext">Autofilled if restoring existing entry</span></label>
